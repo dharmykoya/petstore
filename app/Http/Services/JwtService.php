@@ -2,10 +2,14 @@
 
 namespace App\Http\Services;
 
-use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
-use Lcobucci\JWT\Token\Plain;
+use Lcobucci\JWT\Encoding\ChainedFormatter;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Builder;
+use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Validation\Constraint\RelatedTo;
+use Lcobucci\JWT\Validation\Validator;
 
 class JwtService
 {
@@ -13,46 +17,42 @@ class JwtService
 
     public function __construct()
     {
-        $this->config = Configuration::forAsymmetricSigner(
-            new Sha256(),
-            InMemory::plainText(env('JWT_PRIVATE_KEY')),
-            InMemory::plainText(env('JWT_PUBLIC_KEY'))
-        );
+        $this->config = (new Builder(new JoseEncoder(), ChainedFormatter::default()));
     }
 
-    public function createToken(array $claims): Plain
+    public function createToken(array $claims): string
     {
         $now = new \DateTimeImmutable();
-        return $this->config->builder()
+        $signingKey   = InMemory::plainText(random_bytes(32));
+        return $this->config
             ->issuedBy(config('app.url'))
             ->issuedAt($now)
             ->expiresAt($now->modify('+1 hour'))
-            ->withClaim('uid', $claims['uid'])
-            ->getToken($this->config->signer(), $this->config->signingKey());
+            ->withClaim('uuid', $claims['uuid'])
+            ->getToken(new Sha256(), $signingKey)->toString();
     }
 
-    public function parseToken(string $jwt): Plain
-    {
-        $token = $this->config->parser()->parse($jwt);
-        $constraints = $this->config->validationConstraints();
-        $this->config->validator()->assert($token, ...$constraints);
-
-        return $token;
+    public function parseToken(string $jwt): array {
+        $parser = new Parser(new JoseEncoder());
+        $token = $parser->parse($jwt);
+        return $token->claims()->all();
     }
 
-    public function validateToken(string $jwt): bool
+
+    public function validateToken(string $jwt)
     {
-        try {
-            $token = $this->parseToken($jwt);
-            return true;
-        } catch (\Exception $e) {
-            return false;
+        $parser = new Parser(new JoseEncoder());
+        $token = $parser->parse($jwt);
+        $validator = new Validator();
+
+        if (!$validator->validate($token, new RelatedTo('1234567891'))) {
+            throw new \Exception('Token is invalid.');
         }
-    }
 
-    public function getTokenClaims(string $jwt): array
-    {
-        $token = $this->parseToken($jwt);
+        if (! $validator->validate($token, new RelatedTo('1234567890'))) {
+            throw new \Exception('Token is invalid.');
+        }
+
         return $token->claims()->all();
     }
 }
