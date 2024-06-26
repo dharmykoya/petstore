@@ -2,7 +2,9 @@
 
 namespace App\Traits;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
 trait ResponseTrait {
@@ -20,6 +22,23 @@ trait ResponseTrait {
     public function failedResponse(string $message, int $status = 400, $error = null): JsonResponse
     {
         return $this->jsonResponse($message, $status, $error);
+    }
+
+
+    /**
+     * Return a generic server HTTP error response
+     */
+    public function serverErrorResponse(string $string, Exception $exception = null, int $status = 500): JsonResponse
+    {
+        if ($exception !== null) {
+            $error = "{$exception->getMessage()}
+            on line {$exception->getLine()}
+            in {$exception->getFile()}";
+
+            Log::error($error);
+        }
+
+        return $this->jsonResponse($string, $status);
     }
 
     /**
