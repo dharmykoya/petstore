@@ -16,6 +16,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::middleware([AuthTokenIsValid::class])->group(function () {
             Route::get('/', [UserController::class, 'getUser']);
+            Route::put('/edit', [UserController::class, 'editUser']);
         });
     });
 });
