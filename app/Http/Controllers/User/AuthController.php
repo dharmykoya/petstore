@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\User\RegisterUserRequest;
 use App\Http\Resources\User\UserResource;
 use App\Http\Services\AuthService;
+use Illuminate\Http\Response;
 
 
 /**
@@ -84,7 +85,7 @@ class AuthController extends Controller
     public function register(RegisterUserRequest $request) {
         try {
             $this->authService->createUser($request->validated());
-            return  $this->successResponse("User created successfully, please login to continue.");
+            return  $this->successResponse("User created successfully, please login to continue.", [], Response::HTTP_CREATED);
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("Server Error", $exception);
         }
