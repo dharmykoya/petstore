@@ -28,14 +28,28 @@ class JwtService
             ->issuedBy(config('app.url'))
             ->issuedAt($now)
             ->expiresAt($now->modify('+1 hour'))
-            ->withClaim('uuid', $claims['uuid'])
+            ->withClaim('user', $claims)
             ->getToken(new Sha256(), $signingKey)->toString();
     }
 
     public function parseToken(string $jwt): array {
-        $parser = new Parser(new JoseEncoder());
-        $token = $parser->parse($jwt);
-        return $token->claims()->all();
+        try {
+            $parser = new Parser(new JoseEncoder());
+            $token = $parser->parse($jwt);
+            return $token->claims()->all();
+        } catch (\Exception $exception) {
+            abort("Invalid token", 401);
+        }
+    }
+
+    public function getUserFromToken(string $jwt): array {
+        try {
+            $parser = new Parser(new JoseEncoder());
+            $token = $parser->parse($jwt);
+            return $token->claims()->get('user');
+        } catch (\Exception $exception) {
+            abort("Invalid token", 401);
+        }
     }
 
 
