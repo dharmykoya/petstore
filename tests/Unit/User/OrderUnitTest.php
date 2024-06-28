@@ -3,6 +3,7 @@
 namespace Tests\Unit\User;
 
 use App\Http\Services\OrderService;
+use App\Http\Services\OrderStatusService;
 use App\Models\Order;
 use App\Models\OrderStatus;
 use App\Models\User;
