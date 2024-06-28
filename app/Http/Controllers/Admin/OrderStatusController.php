@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateOrderStatusRequest;
+use App\Http\Requests\Admin\UpdateOrderStatusRequest;
 use App\Http\Resources\Admin\OrderStatusResource;
 use App\Http\Services\OrderStatusService;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class OrderStatusController extends Controller
@@ -60,5 +60,76 @@ class OrderStatusController extends Controller
         }
     }
 
+
+    /**
+     * @OA\Put(
+     *     path="/api/v1/order-status/{uuid}",
+     *     tags={"Order Status"},
+     *     summary="Edit an existing order status",
+     *     description="Allows an admin to edit an existing order status.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="UUID of the order status to be edited",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="title", type="string", example="Shipped")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Status edited successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Status edited successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="uuid", type="string", example="123e4567-e89b-12d3-a456-426614174000"),
+     *                 @OA\Property(property="title", type="string", example="Shipped"),
+     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2024-01-01T00:00:00.000000Z"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2024-01-02T00:00:00.000000Z")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="You don't have permission to operate this route.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Order status not found.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Server Error")
+     *         )
+     *     )
+     * )
+     */
+    public function editStatus(UpdateOrderStatusRequest $request, $uuid) {
+        try {
+            $status = $this->orderStatusService->editStatus($request->validated(), $uuid);
+            if (!$status['status']) {
+                return $this->failedResponse($status['message']);
+            }
+            return  $this->successResponse("Status edited successfully", new OrderStatusResource($status['data']));
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
 
 }

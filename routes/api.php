@@ -45,6 +45,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('order-status')->group(function () {
         Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])->group(function () {
             Route::post('/create', [OrderStatusController::class, 'create']);
+            Route::put('/{uuid}', [OrderStatusController::class, 'editStatus']);
         });
     });
 });
