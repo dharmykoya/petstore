@@ -17,7 +17,7 @@ class OrdersTableSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = User::all();
+        $users = User::where('is_admin', 0)->get();
 
         foreach ($users as $user) {
             Order::factory()->count(5)->create([

@@ -1,15 +1,15 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\User;
 
 use App\Http\Services\AuthService;
 use App\Http\Services\JwtService;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Mockery;
 use Tests\TestCase;
-use Illuminate\Http\Request;
 
 class AuthUnitTest extends TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\User;
 
 use App\Http\Services\OrderService;
 use App\Models\Order;

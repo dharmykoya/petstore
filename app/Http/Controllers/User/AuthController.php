@@ -5,7 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\User\RegisterUserRequest;
-use App\Http\Resources\User\UserResource;
+use App\Http\Resources\User\UserLoginResource;
 use App\Http\Services\AuthService;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
@@ -123,7 +123,7 @@ class AuthController extends Controller
             if (!$user['status']) {
                 return $this->failedResponse($user['message']);
             }
-            return  $this->successResponse("login successful.", new UserResource($user['data']));
+            return  $this->successResponse("login successful.", new UserLoginResource($user['data']));
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("Server Error", $exception);
         }
