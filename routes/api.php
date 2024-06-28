@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\User\AuthController;
+use App\Http\Controllers\User\PasswordController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Middleware\AuthTokenIsValid;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ Route::prefix('v1')->group(function () {
     Route::prefix('user')->group(function () {
         Route::post('/create', [AuthController::class, 'register']);
         Route::post('/login', [AuthController::class, 'login']);
+        Route::post('forgot-password', [PasswordController::class, 'sendPasswordResetLink']);
+        Route::post('reset-password-token', [PasswordController::class, 'resetPassword']);
         Route::middleware([AuthTokenIsValid::class])->group(function () {
             Route::get('/', [UserController::class, 'getUser']);
             Route::put('/edit', [UserController::class, 'editUser']);
