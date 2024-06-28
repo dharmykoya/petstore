@@ -24,10 +24,9 @@ class UserService {
         return ['status' => true, 'message' => 'User found.', 'data' => $user];
     }
 
-    public function editUser($requestData)
+    public function editUser($requestData, $uuid)
     {
-        $authUser = auth()->user();
-        $user = User::query()->where('uuid', $authUser->uuid)->first();
+        $user = User::query()->where('uuid', $uuid)->first();
 
         if (!$user) {
             return ['status' => false, 'message' => 'User not found.'];

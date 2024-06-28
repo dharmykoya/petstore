@@ -72,4 +72,23 @@ class UserUnitTest extends TestCase
     {
         Auth::shouldReceive('user')->andReturn($user);
     }
+
+    public function test_edit_user_by_admin()
+    {
+        $user = User::factory()->create();
+
+        $updatedData = [
+            'first_name' => 'Updated First Name',
+        ];
+
+        $userService = new UserService();
+        $result = $userService->editUser($updatedData, $user->uuid);
+
+        $this->assertTrue($result['status']);
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'first_name' => 'Updated First Name',
+        ]);
+    }
 }

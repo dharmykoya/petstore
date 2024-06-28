@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\AdminEditUserRequest;
 use App\Http\Resources\User\UserResource;
 use App\Http\Services\UserService;
 use Illuminate\Http\Request;
@@ -113,6 +114,85 @@ class AdminUserController extends Controller
                 'status' => true,
                 'message' => 'orders fetched successfully.'
             ]);
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/api/v1/admin/user-edit/{uuid}",
+     *     summary="Edit User",
+     *     description="Edit an existing user by UUID",
+     *     tags={"Admin"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         description="UUID of the user to edit",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/AdminEditUserRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User edited successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="status",
+     *                 type="boolean",
+     *                 example=true
+     *             ),
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/UserResource"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="status",
+     *                 type="boolean",
+     *                 example=false
+     *             ),
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Bad Request"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="status",
+     *                 type="boolean",
+     *                 example=false
+     *             ),
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Server Error"
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function editUser(AdminEditUserRequest $request, $uuid) {
+        try {
+            $user = $this->userService->editUser($request->validated(), $uuid);
+            if (!$user['status']) {
+                return $this->failedResponse($user['message']);
+            }
+            return  $this->successResponse("", new UserResource($user['data']));
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("Server Error", $exception);
         }

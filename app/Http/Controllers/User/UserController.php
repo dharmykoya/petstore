@@ -106,7 +106,7 @@ class UserController extends Controller
      */
     public function editUser(EditUserRequest $request) {
         try {
-            $user = $this->userService->editUser($request->validated());
+            $user = $this->userService->editUser($request->validated(), auth()->user()->uuid);
             if (!$user['status']) {
                 return $this->failedResponse($user['message']);
             }

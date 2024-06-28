@@ -86,4 +86,28 @@ class AdminUserTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+    public function test_admin_can_edit_user()
+    {
+        $user = User::factory()->create();
+
+        $updatedData = [
+            'first_name' => 'Updated First Name',
+            'last_name'  => 'New Last'
+        ];
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->adminToken,
+        ])->putJson("/api/v1/admin/user-edit/{$user->uuid}", $updatedData);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => true,
+        ]);
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'first_name' => 'Updated First Name',
+        ]);
+    }
 }
