@@ -16,6 +16,7 @@ Route::get('/user', function (Request $request) {
 
 Route::prefix('v1')->group(function () {
     Route::prefix('admin')->group(function () {
+        Route::post('login', [AdminAuthController::class, 'login']);
         Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])->group(function () {
             Route::post('/create', [AdminAuthController::class, 'register']);
         });
