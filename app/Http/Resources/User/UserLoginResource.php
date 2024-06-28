@@ -24,7 +24,7 @@ class UserLoginResource extends JsonResource
             'avatar' => $this->avatar,
             'address' => $this->address,
             'phone_number' => $this->phone_number,
-            'is_marketing' => $this->is_marketing,
+            'is_marketing' => (bool) $this->is_marketing,
             'token' => $this->token,
         ];
     }

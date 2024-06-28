@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\User\OrderController;
@@ -20,6 +21,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])->group(function () {
             Route::post('/create', [AdminAuthController::class, 'register']);
             Route::get('/logout', [AdminAuthController::class, 'logout']);
+            Route::get('/user-listing ', [AdminUserController::class, 'getUsers']);
         });
     });
 

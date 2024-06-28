@@ -48,4 +48,41 @@ class UserService {
 
         return ['status' => true];
     }
+
+    public function getUsers($request)
+    {
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 15);
+        $sortBy = $request->input('sort_by', 'created_at');
+        $desc = $request->input('desc', 'true');
+
+        $query = User::query();
+
+        $query->when($request->filled('first_name'), function ($q) use ($request) {
+            $q->orWhere('first_name', 'like', '%' . $request->input('first_name') . '%');
+        });
+
+        $query->when($request->filled('last_name'), function ($q) use ($request) {
+            $q->orWhere('last_name', 'like', '%' . $request->input('last_name') . '%');
+        });
+
+        $query->when($request->filled('email'), function ($q) use ($request) {
+            $q->orWhere('email', 'like', '%' . $request->input('email') . '%');
+        });
+
+        $query->when($request->filled('phone_number'), function ($q) use ($request) {
+            $q->orWhere('phone_number', 'like', '%' . $request->input('phone_number') . '%');
+        });
+
+        $query->where('is_admin', 0);
+
+        if ($desc === 'true') {
+            $query->orderByDesc($sortBy);
+        } else {
+            $query->orderBy($sortBy);
+        }
+
+        return $query->paginate($limit, ['*'], 'page', $page);
+    }
+
 }

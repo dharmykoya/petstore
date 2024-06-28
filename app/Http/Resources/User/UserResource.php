@@ -19,11 +19,12 @@ class UserResource extends JsonResource
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'email' => $this->email,
+            'is_admin' => (bool) $this->is_admin,
             'email_verified_at' => $this->email_verified_at,
             'avatar' => $this->avatar,
             'address' => $this->address,
             'phone_number' => $this->phone_number,
-            'is_marketing' => $this->is_marketing,
+            'is_marketing' => (bool) $this->is_marketing,
         ];
     }
 }
