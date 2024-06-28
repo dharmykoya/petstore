@@ -48,4 +48,25 @@ class OrderStatusService {
 
         return ['status' => true, 'data' => $status];
     }
+
+    public function getAllStatus($request) {
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 15);
+        $sortBy = $request->input('sort_by', 'created_at');
+        $desc = $request->input('desc', 'true');
+
+        $query = OrderStatus::query();
+
+        $query->when($request->filled('title'), function ($q) use ($request) {
+            $q->orWhere('title', 'like', '%' . $request->input('title') . '%');
+        });
+
+        if ($desc === 'true') {
+            $query->orderByDesc($sortBy);
+        } else {
+            $query->orderBy($sortBy);
+        }
+
+        return $query->paginate($limit, ['*'], 'page', $page);
+    }
 }

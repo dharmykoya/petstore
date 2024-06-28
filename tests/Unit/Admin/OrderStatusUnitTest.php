@@ -8,6 +8,7 @@ use App\Models\OrderStatus;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class OrderStatusUnitTest extends TestCase
@@ -107,5 +108,36 @@ class OrderStatusUnitTest extends TestCase
 
         $this->assertFalse($result['status']);
         $this->assertEquals('Status not found.', $result['message']);
+    }
+
+
+    public function test_get_all_statuses_without_filters()
+    {
+        OrderStatus::factory()->count(10)->create();
+
+        $request = new Request();
+
+        // Call the service method
+        $statuses = $this->orderStatusService->getAllStatus($request);
+
+        // Assertions
+        $this->assertEquals(15, $statuses->perPage()); // Default limit is 15
+        $this->assertEquals(1, $statuses->currentPage()); // Default page is 1
+        $this->assertCount(10, $statuses); // Should retrieve all 10 statuses
+    }
+
+    public function test_get_all_statuses_with_title_filter()
+    {
+        OrderStatus::factory()->create(['title' => 'In Progress']);
+        OrderStatus::factory()->create(['title' => 'Completed']);
+
+        $request = new Request(['title' => 'Progress']);
+
+        // Call the service method
+        $statuses = $this->orderStatusService->getAllStatus($request);
+
+        // Assertions
+        $this->assertCount(1, $statuses); // Should retrieve only 1 status matching 'Progress'
+        $this->assertEquals('In Progress', $statuses->first()->title);
     }
 }

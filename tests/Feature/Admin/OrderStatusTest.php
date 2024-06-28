@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderStatus;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class OrderStatusTest extends TestCase
@@ -249,5 +250,79 @@ class OrderStatusTest extends TestCase
             ->assertJson([
                 'message' => "You don't have permission to operate this route."
             ]);
+    }
+
+    public function test_get_all_statuses()
+    {
+        $user = User::factory()->create(['is_admin' => true]);
+
+        OrderStatus::factory()->count(20)->create();
+        $token = (new JwtService())->createToken($user->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->getJson("/api/v1/order-statuses?limit=10");
+
+        // Assert HTTP status and response structure
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'status',
+                'message',
+                'data' => [
+                    '*' => [
+                        'uuid',
+                        'title',
+                        'created_at',
+                        'updated_at'
+                    ]
+                ],
+                'meta'
+            ]);
+
+        $response->assertJsonCount(10, 'data');
+    }
+
+    public function test_get_all_statuses_with_pagination()
+    {
+        $user = User::factory()->create(['is_admin' => true]);
+        OrderStatus::factory()->count(30)->create();
+
+        $token = (new JwtService())->createToken($user->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->getJson("/api/v1/order-statuses?limit=10&page=2");
+
+        // Assert HTTP status and response structure
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'status',
+                'message',
+                'data' => [
+                    '*' => [
+                        'uuid',
+                        'title',
+                        'created_at',
+                        'updated_at'
+                    ]
+                ],
+                'meta'
+            ]);
+
+        $response->assertJson(function (AssertableJson $json) {
+            $json->has('data')
+                ->has('links')
+                ->has('meta.per_page')
+                ->has('status')
+                ->has('meta')
+                ->has('message');
+        });
+    }
+
+    public function test_unauthorized_access_to_statuses_endpoint()
+    {
+        $response = $this->getJson("/api/v1/order-statuses?limit=10&page=2");
+
+        $response->assertStatus(401);
     }
 }

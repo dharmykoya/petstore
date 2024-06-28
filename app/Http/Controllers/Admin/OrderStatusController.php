@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\CreateOrderStatusRequest;
 use App\Http\Requests\Admin\UpdateOrderStatusRequest;
 use App\Http\Resources\Admin\OrderStatusResource;
 use App\Http\Services\OrderStatusService;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class OrderStatusController extends Controller
@@ -252,6 +253,87 @@ class OrderStatusController extends Controller
                 return $this->failedResponse($status['message'], Response::HTTP_NOT_FOUND);
             }
             return  $this->successResponse("", new OrderStatusResource($status['data']));
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
+
+    /**
+     * Get all order statuses.
+     *
+     * Retrieves all order statuses based on provided parameters.
+     *
+     *
+     * @OA\Get(
+     *     path="/api/v1/order-statuses",
+     *     tags={"Order Statuses"},
+     *     summary="Get all order statuses",
+     *     description="Retrieve all order statuses based on provided parameters.",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number for pagination",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         description="Number of items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=10)
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort_by",
+     *         in="query",
+     *         description="Column to sort by",
+     *         required=false,
+     *         @OA\Schema(type="string", example="created_at")
+     *     ),
+     *     @OA\Parameter(
+     *         name="desc",
+     *         in="query",
+     *         description="Sort in descending order (true/false)",
+     *         required=false,
+     *         @OA\Schema(type="boolean", example=true)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Order statuses fetched successfully."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/OrderStatusResource")
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *     ),
+     * )
+     */
+    public function getAllStatuses(Request $request) {
+        try {
+            $status = $this->orderStatusService->getAllStatus($request);
+
+            return OrderStatusResource::collection($status)->additional([
+                'status' => true,
+                'message' => 'orders fetched successfully.'
+            ]);
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("Server Error", $exception);
         }
