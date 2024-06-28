@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\OrderStatusController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\User\OrderController;
@@ -38,6 +39,12 @@ Route::prefix('v1')->group(function () {
             Route::put('/edit', [UserController::class, 'editUser']);
             Route::delete('/', [UserController::class, 'deleteUser']);
             Route::get('orders', [OrderController::class, 'getUserOrders']);
+        });
+    });
+
+    Route::prefix('order-status')->group(function () {
+        Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])->group(function () {
+            Route::post('/create', [OrderStatusController::class, 'create']);
         });
     });
 });

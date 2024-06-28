@@ -32,6 +32,10 @@ class UserService {
             return ['status' => false, 'message' => 'User not found.'];
         }
 
+        if ($user->is_admin) {
+            return ['status' => false, 'message' => 'Admin details can not be edited.'];
+        }
+
         $user->update($requestData);
 
         return ['status' => true, 'message' => 'Update successful.', 'data' => $user];
