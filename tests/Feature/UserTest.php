@@ -177,4 +177,59 @@ class UserTest extends TestCase
                  'message' => 'Server Error'
              ]);
      }
+
+    public function test_delete_user_success()
+    {
+        // Create a user
+        $user = User::factory()->create();
+
+        // Generate JWT token for the user
+        $token = (new JwtService())->createToken($user->toArray());
+
+        // Make a DELETE request to the endpoint with the Bearer token
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->deleteJson('/api/v1/user');
+
+        // Assert the response status and structure
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => true,
+            ]);
+
+        // Assert the user was soft deleted
+        $this->assertSoftDeleted('users', ['id' => $user->id]);
+    }
+
+    public function test_delete_user_not_found()
+    {
+        // Create a user
+        $user = User::factory()->create();
+
+        // Generate JWT token for the user
+        $token = (new JwtService())->createToken($user->toArray());
+
+        // Delete the user to simulate "User not found"
+        $user->delete();
+
+        // Make a DELETE request to the endpoint with the Bearer token
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->deleteJson('/api/v1/user');
+
+        // Assert the response status and structure
+        $response->assertStatus(400)
+            ->assertJson([
+                'status' => false,
+            ]);
+    }
+
+    public function test_delete_user_unauthorized()
+    {
+        // Make a DELETE request to the endpoint without authentication
+        $response = $this->deleteJson('/api/v1/user');
+
+        // Assert the response status
+        $response->assertStatus(401);
+    }
 }

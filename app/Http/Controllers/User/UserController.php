@@ -60,7 +60,7 @@ class UserController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/user",
+     *     path="/api/v1/user/edit",
      *     summary="Edit user details",
      *     description="Updates the details of the authenticated user",
      *     operationId="editUser",
@@ -111,6 +111,58 @@ class UserController extends Controller
                 return $this->failedResponse($user['message']);
             }
             return  $this->successResponse("", new UserResource($user['data']));
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/user",
+     *     summary="Delete user account",
+     *     description="Deletes the authenticated user's account",
+     *     operationId="deleteUser",
+     *     tags={"User"},
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Your account has been deleted successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unable to delete account.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Server Error")
+     *         )
+     *     )
+     * )
+     */
+    public function deleteUser() {
+        try {
+            $user = $this->userService->deleteUser(auth()->user()->uuid);
+            if (!$user['status']) {
+                return $this->failedResponse("Unable to delete account.");
+            }
+            return  $this->successResponse("Your account has been deleted successfully.");
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("Server Error", $exception);
         }

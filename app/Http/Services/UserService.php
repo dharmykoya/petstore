@@ -37,4 +37,15 @@ class UserService {
 
         return ['status' => true, 'message' => 'Update successful.', 'data' => $user];
     }
+
+    public function deleteUser($uuid) {
+        $user = User::query()->where('uuid', $uuid)->first();
+        if (!$user) {
+            return ['status' => false];
+        }
+
+        $user->delete();
+
+        return ['status' => true];
+    }
 }
