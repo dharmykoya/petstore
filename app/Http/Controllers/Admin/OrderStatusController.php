@@ -185,4 +185,75 @@ class OrderStatusController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/order-status/{uuid}",
+     *     summary="Get order status by UUID",
+     *     tags={"Order Status"},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="UUID of the order status to retrieve",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="status",
+     *                 type="boolean",
+     *                 example=true
+     *             ),
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="",
+     *                 nullable=true
+     *             ),
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/OrderStatusResource"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Order status not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Order status not found."
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Server Error"
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function getStatus($uuid) {
+        try {
+            $status = $this->orderStatusService->getStatus($uuid);
+            if (!$status['status']) {
+                return $this->failedResponse($status['message'], Response::HTTP_NOT_FOUND);
+            }
+            return  $this->successResponse("", new OrderStatusResource($status['data']));
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
 }

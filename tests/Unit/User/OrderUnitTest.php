@@ -49,4 +49,5 @@ class OrderUnitTest extends TestCase
         $this->assertEquals(5, $orders->count());
         $this->assertEquals(1, $orders->currentPage());
     }
+
 }

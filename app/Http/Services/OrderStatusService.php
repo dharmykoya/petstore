@@ -37,4 +37,15 @@ class OrderStatusService {
 
         return ['status' => true];
     }
+
+    public function getStatus($uuid) {
+        $status = OrderStatus::query()->where('uuid', $uuid)->first();
+
+        if (!$status) {
+            return ['status' => false, 'message' => 'Status not found.'];
+        }
+
+
+        return ['status' => true, 'data' => $status];
+    }
 }

@@ -91,4 +91,21 @@ class OrderStatusUnitTest extends TestCase
         $this->assertEquals('There are orders attached to this status.', $result['message']);
         $this->assertDatabaseHas('order_statuses', ['uuid' => $orderStatus->uuid]);
     }
+    public function test_get_status_existing()
+    {
+        $orderStatus = OrderStatus::factory()->create();
+
+        $result = $this->orderStatusService->getStatus($orderStatus->uuid);
+
+        $this->assertTrue($result['status']);
+        $this->assertEquals($orderStatus->uuid, $result['data']->uuid); // Adjust as per your model fields
+    }
+
+    public function test_get_status_not_found()
+    {
+        $result = $this->orderStatusService->getStatus('non_existing_uuid');
+
+        $this->assertFalse($result['status']);
+        $this->assertEquals('Status not found.', $result['message']);
+    }
 }

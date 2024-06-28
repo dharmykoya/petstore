@@ -191,8 +191,6 @@ class OrderStatusTest extends TestCase
         $admin = User::factory()->create(['is_admin' => true]);
         $token = (new JwtService())->createToken($admin->toArray());
 
-
-
         $status = OrderStatus::factory()->create();
         Order::factory()->create(['order_status_id' => $status->id]);
 
@@ -207,5 +205,49 @@ class OrderStatusTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('order_statuses', ['uuid' => $status->uuid]);
+    }
+
+    public function test_get_status_as_admin()
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $orderStatus = OrderStatus::factory()->create();
+
+        $token = (new JwtService())->createToken($admin->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->getJson("/api/v1/order-status/{$orderStatus->uuid}");
+
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'status',
+                'data' => [
+                    'uuid',
+                    'title'
+                ]
+            ]);
+    }
+
+    public function test_get_status_as_non_admin()
+    {
+        // Create a mock non-admin user
+        $user = User::factory()->create(['is_admin' => false]);
+
+        // Create a mock order status
+        $orderStatus = OrderStatus::factory()->create();
+
+        $token = (new JwtService())->createToken($user->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->getJson("/api/v1/order-status/{$orderStatus->uuid}");
+
+        $response->assertForbidden();
+        $response->assertStatus(403)
+            ->assertJson([
+                'message' => "You don't have permission to operate this route."
+            ]);
     }
 }
