@@ -19,6 +19,7 @@ Route::prefix('v1')->group(function () {
         Route::post('login', [AdminAuthController::class, 'login']);
         Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])->group(function () {
             Route::post('/create', [AdminAuthController::class, 'register']);
+            Route::get('/logout', [AdminAuthController::class, 'logout']);
         });
     });
 

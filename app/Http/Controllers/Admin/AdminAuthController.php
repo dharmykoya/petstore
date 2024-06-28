@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\User\RegisterUserRequest;
 use App\Http\Resources\Admin\AdminLoginResource;
 use App\Http\Services\AuthService;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class AdminAuthController extends Controller
@@ -106,6 +107,45 @@ class AdminAuthController extends Controller
                 return $this->failedResponse($user['message']);
             }
             return  $this->successResponse("login successful.", new AdminLoginResource($user['data']));
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/logout",
+     *     summary="Logout",
+     *     description="Logout a user and invalidate the JWT token.",
+     *     operationId="logout",
+     *     tags={"Auth"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="logout successful",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="logout successful")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Server Error")
+     *         )
+     *     ),
+     *     security={
+     *         {"bearerAuth": {}}
+     *     }
+     * )
+     */
+    public function logout(Request $request) {
+        try {
+            $this->authService->logout($request);
+            return  $this->successResponse("logout successful");
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("Server Error", $exception);
         }
