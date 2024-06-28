@@ -197,4 +197,60 @@ class AdminUserController extends Controller
             return $this->serverErrorResponse("Server Error", $exception);
         }
     }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/admin/user-delete/{uuid}",
+     *     summary="Delete a user",
+     *     description="Delete a user account by UUID.",
+     *     tags={"Admin Users"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="UUID of the user to delete",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User account deleted successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example="true"),
+     *             @OA\Property(property="message", type="string", example="User account has been deleted successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Unable to delete account",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Unable to delete account.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Server Error")
+     *         )
+     *     )
+     * )
+     */
+    public function deleteUser($uuid) {
+        try {
+            $user = $this->userService->deleteUser($uuid);
+            if (!$user['status']) {
+                return $this->failedResponse("Unable to delete account.");
+            }
+            return  $this->successResponse("User account has been deleted successfully.");
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
 }

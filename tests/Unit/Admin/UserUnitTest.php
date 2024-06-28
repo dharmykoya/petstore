@@ -91,4 +91,35 @@ class UserUnitTest extends TestCase
             'first_name' => 'Updated First Name',
         ]);
     }
+
+    public function test_it_deletes_a_user_successfully()
+    {
+
+        $user = User::factory()->create();
+
+        $response = $this->userService->deleteUser($user->uuid);
+
+        $this->assertTrue($response['status']);
+
+        $this->assertNull(User::find($user->id));
+    }
+
+
+    public function test_it_returns_false_when_deleting_non_existing_user()
+    {
+        $response = $this->userService->deleteUser('non_existing_uuid');
+
+        $this->assertFalse($response['status']);
+    }
+
+    public function test_it_returns_false_when_deleting_admin_user()
+    {
+        $adminUser = User::factory()->create(['is_admin' => true]);
+
+        $response = $this->userService->deleteUser($adminUser->uuid);
+
+        $this->assertFalse($response['status']);
+
+        $this->assertNotNull(User::find($adminUser->id));
+    }
 }

@@ -43,6 +43,10 @@ class UserService {
             return ['status' => false];
         }
 
+        if ($user->is_admin) {
+            return ['status' => false];
+        }
+
         $user->delete();
 
         return ['status' => true];

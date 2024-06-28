@@ -5,7 +5,6 @@ namespace Tests\Feature\Admin;
 use App\Http\Services\JwtService;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class AdminUserTest extends TestCase
@@ -109,5 +108,19 @@ class AdminUserTest extends TestCase
             'id' => $user->id,
             'first_name' => 'Updated First Name',
         ]);
+    }
+
+    public function test_admin_account_can_not_be_deleted()
+    {
+        $user = User::factory()->create(['is_admin' => true]);
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->adminToken,
+        ])->deleteJson("/api/v1/admin/user-delete/{$user->uuid}");
+
+        $response->assertStatus(400)
+            ->assertJson([
+                'status' => false,
+            ]);
     }
 }
