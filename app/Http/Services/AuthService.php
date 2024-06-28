@@ -16,7 +16,8 @@ class AuthService {
         $this->jwtService = $jwtService;
     }
 
-    public function createUser($requestData) {
+    public function createUser($requestData, $isAdmin = false) {
+        if ($isAdmin) $requestData['is_admin'] = true;
         return User::create($requestData);
     }
 

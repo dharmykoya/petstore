@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\User\AuthController;
+use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\User\OrderController;
 use App\Http\Controllers\User\PasswordController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Middleware\AuthTokenIsValid;
+use App\Http\Middleware\IsAdminMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +15,12 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('v1')->group(function () {
+    Route::prefix('admin')->group(function () {
+        Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])->group(function () {
+            Route::post('/create', [AdminAuthController::class, 'register']);
+        });
+    });
+
     Route::prefix('user')->group(function () {
         Route::post('/create', [AuthController::class, 'register']);
         Route::post('/login', [AuthController::class, 'login']);
