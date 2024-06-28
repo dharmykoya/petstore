@@ -132,4 +132,57 @@ class OrderStatusController extends Controller
         }
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/order-status/{uuid}",
+     *     summary="Delete an order status",
+     *     description="Deletes an order status. Only accessible by admin users.",
+     *     tags={"Order Status"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         description="UUID of the order status to delete",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Status deleted successfully.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Status deleted successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="You don't have permission to operate this route.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Server Error"),
+     *             @OA\Property(property="error", type="string", example="Exception message")
+     *         )
+     *     )
+     * )
+     */
+    public function deleteStatus($uuid) {
+        try {
+            $status = $this->orderStatusService->deleteStatus($uuid);
+            if (!$status['status']) {
+                return $this->failedResponse($status['message']);
+            }
+            return  $this->successResponse("Status deleted successfully.");
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
+
 }

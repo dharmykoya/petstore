@@ -16,4 +16,9 @@ class OrderStatus extends Model
     protected $hidden = [
         'id',
     ];
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

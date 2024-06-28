@@ -3,7 +3,9 @@
 namespace Tests\Unit\Admin;
 
 use App\Http\Services\OrderStatusService;
+use App\Models\Order;
 use App\Models\OrderStatus;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -12,15 +14,20 @@ class OrderStatusUnitTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    protected $orderStatusService;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->orderStatusService = new OrderStatusService();
+    }
     public function test_create_status()
     {
-        $service = new OrderStatusService();
-
         $requestData = [
             'title' => 'Processing',
         ];
 
-        $status = $service->createStatus($requestData);
+        $status = $this->orderStatusService->createStatus($requestData);
 
         $this->assertInstanceOf(OrderStatus::class, $status);
         $this->assertEquals('Processing', $status->title);
@@ -37,8 +44,7 @@ class OrderStatusUnitTest extends TestCase
         $requestData = ['title' => 'Shipped'];
         $uuid = $status->uuid;
 
-        $service = new OrderStatusService();
-        $result = $service->editStatus($requestData, $uuid);
+        $result = $this->orderStatusService->editStatus($requestData, $uuid);
 
         $this->assertTrue($result['status']);
         $this->assertEquals('Update successful.', $result['message']);
@@ -50,10 +56,39 @@ class OrderStatusUnitTest extends TestCase
         $requestData = ['title' => 'Shipped'];
         $uuid = 'non-existent-uuid';
 
-        $service = new OrderStatusService();
-        $result = $service->editStatus($requestData, $uuid);
+        $result = $this->orderStatusService->editStatus($requestData, $uuid);
 
         $this->assertFalse($result['status']);
         $this->assertEquals('Status not found.', $result['message']);
+    }
+
+    public function test_delete_status_successful()
+    {
+        $status = OrderStatus::factory()->create();
+
+        $result = $this->orderStatusService->deleteStatus($status->uuid);
+
+        $this->assertTrue($result['status']);
+        $this->assertDatabaseMissing('order_statuses', ['uuid' => $status->uuid]);
+    }
+
+    public function test_delete_non_existing_status()
+    {
+        $result = $this->orderStatusService->deleteStatus('non-existing-uuid');
+
+        $this->assertFalse($result['status']);
+    }
+
+    public function test_delete_status_with_orders()
+    {
+        User::factory()->create();
+        $orderStatus = OrderStatus::factory()->create();
+        Order::factory()->create(['order_status_id' => $orderStatus->id]);
+
+        $result = $this->orderStatusService->deleteStatus($orderStatus->uuid);
+
+        $this->assertFalse($result['status']);
+        $this->assertEquals('There are orders attached to this status.', $result['message']);
+        $this->assertDatabaseHas('order_statuses', ['uuid' => $orderStatus->uuid]);
     }
 }
