@@ -38,7 +38,7 @@ class JwtService
             $token = $parser->parse($jwt);
             return $token->claims()->all();
         } catch (\Exception $exception) {
-            abort("Invalid token", 401);
+            abort(401, "Invalid token");
         }
     }
 
@@ -48,7 +48,7 @@ class JwtService
             $token = $parser->parse($jwt);
             return $token->claims()->get('user');
         } catch (\Exception $exception) {
-            abort("Invalid token", 401);
+            abort(401, "Invalid token");
         }
     }
 

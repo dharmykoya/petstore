@@ -6,8 +6,10 @@ use App\Http\Services\AuthService;
 use App\Http\Services\JwtService;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Mockery;
 use Tests\TestCase;
+use Illuminate\Http\Request;
 
 class AuthUnitTest extends TestCase
 {
@@ -51,5 +53,24 @@ class AuthUnitTest extends TestCase
 
         $this->assertFalse($response['status']);
         $this->assertEquals('Email and/or Password does not match.', $response['message']);
+    }
+
+    public function testLogout()
+    {
+        $request = Mockery::mock(Request::class);
+        $request->shouldReceive('bearerToken')
+            ->andReturn('mocked_token');
+
+        DB::shouldReceive('table')
+            ->once()
+            ->with('token_blacklists')
+            ->andReturnSelf();
+        DB::shouldReceive('insert')
+            ->once()
+            ->with(['token' => 'mocked_token']);
+
+        $jwtService = Mockery::mock(JwtService::class);
+        $authService = new AuthService($jwtService);
+        $authService->logout($request);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Http\Services\JwtService;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -99,5 +99,24 @@ class AuthTest extends TestCase
                 'status',
                 'message',
             ]);
+    }
+
+    public function testLogout()
+    {
+        $user = User::factory()->create();
+        $token = (new JwtService())->createToken($user->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->getJson('/api/v1/user/logout');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'message' => 'logout successful',
+            ]);
+
+        $this->assertDatabaseHas('token_blacklists', [
+            'token' => $token
+        ]);
     }
 }

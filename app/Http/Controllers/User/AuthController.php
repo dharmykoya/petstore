@@ -8,6 +8,7 @@ use App\Http\Requests\User\RegisterUserRequest;
 use App\Http\Resources\User\UserResource;
 use App\Http\Services\AuthService;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 
 
 /**
@@ -123,6 +124,61 @@ class AuthController extends Controller
                 return $this->failedResponse($user['message']);
             }
             return  $this->successResponse("login successful.", new UserResource($user['data']));
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/user/logout",
+     *     tags={"Auth"},
+     *     summary="Logout the current user",
+     *     description="Invalidate the current user's JWT token.",
+     *     operationId="logout",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         description="Logout request",
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             example={}
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logout successful",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="logout successful"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Server Error"
+     *             ),
+     *             @OA\Property(
+     *                 property="error",
+     *                 type="string"
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function logout(Request $request) {
+        try {
+            $this->authService->logout($request);
+            return  $this->successResponse("logout successful");
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("Server Error", $exception);
         }

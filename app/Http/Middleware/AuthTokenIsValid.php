@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Http\Services\JwtService;
+use App\Models\TokenBlacklist;
 use Closure;
 use Illuminate\Auth\GenericUser;
 use Illuminate\Http\Request;
@@ -18,25 +19,34 @@ class AuthTokenIsValid
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->header('Authorization');
+        $token = $request->bearerToken();
 
-        if (!$token || !preg_match('/^Bearer\s(\S+)$/', $token, $matches)) {
+        if (!$token) {
             abort(Response::HTTP_UNAUTHORIZED, "Please login to complete this request");
         }
 
-        $token = $matches[1];
+        $blackList = TokenBlacklist::query()->where('token', $token)->exists();
 
-        $jwtService = new JwtService();
-        $decodedUser = $jwtService->getUserFromToken($token);
-
-        if (!$decodedUser) {
+        // Check if the token is blacklisted
+        if ($blackList) {
             abort(Response::HTTP_UNAUTHORIZED, "Please login to complete this request");
         }
 
-        // set Auth user;
-        $user = new GenericUser((array) $decodedUser);
-        Auth::setUser($user);
+        try {
+            $jwtService = new JwtService();
+            $decodedUser = $jwtService->getUserFromToken($token);
 
-        return $next($request);
+            if (!$decodedUser) {
+                abort(Response::HTTP_UNAUTHORIZED, "Please login to complete this request");
+            }
+
+            // set Auth user;
+            $user = new GenericUser((array) $decodedUser);
+            Auth::setUser($user);
+
+            return $next($request);
+        } catch (\Exception $e) {
+            abort(Response::HTTP_UNAUTHORIZED, "Invalid Token");
+        }
     }
 }

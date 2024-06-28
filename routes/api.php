@@ -18,6 +18,7 @@ Route::prefix('v1')->group(function () {
         Route::post('forgot-password', [PasswordController::class, 'sendPasswordResetLink']);
         Route::post('reset-password-token', [PasswordController::class, 'resetPassword']);
         Route::middleware([AuthTokenIsValid::class])->group(function () {
+            Route::get('/logout', [AuthController::class, 'logout']);
             Route::get('/', [UserController::class, 'getUser']);
             Route::put('/edit', [UserController::class, 'editUser']);
             Route::delete('/', [UserController::class, 'deleteUser']);

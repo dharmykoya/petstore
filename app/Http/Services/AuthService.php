@@ -32,6 +32,11 @@ class AuthService {
         return ['status' => true, 'data' => $user];
     }
 
+    public function logout($request) {
+        $token = $request->bearerToken();
+        DB::table('token_blacklists')->insert(['token' => $token]);
+    }
+
     public function sendPasswordResetLink($data)
     {
         $user = User::where('email', $data['email'])->first();
