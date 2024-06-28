@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\User\AuthController;
+use App\Http\Controllers\User\OrderController;
 use App\Http\Controllers\User\PasswordController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Middleware\AuthTokenIsValid;
@@ -22,6 +23,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [UserController::class, 'getUser']);
             Route::put('/edit', [UserController::class, 'editUser']);
             Route::delete('/', [UserController::class, 'deleteUser']);
+            Route::get('orders', [OrderController::class, 'getUserOrders']);
         });
     });
 });
