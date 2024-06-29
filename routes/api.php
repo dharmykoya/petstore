@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderStatusController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\Admin\AdminAuthController;
@@ -42,15 +43,23 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    Route::prefix('order-status')->group(function () {
-        Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])->group(function () {
-            Route::get('', [OrderStatusController::class, 'getAllStatuses']);
+    Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])->group(function () {
+        Route::get('order-statuses', [OrderStatusController::class, 'getAllStatuses']);
+        Route::prefix('order-status')->group(function () {
             Route::post('/create', [OrderStatusController::class, 'create']);
             Route::put('/{uuid}', [OrderStatusController::class, 'editStatus']);
             Route::delete('/{uuid}', [OrderStatusController::class, 'deleteStatus']);
             Route::get('/{uuid}', [OrderStatusController::class, 'getStatus']);
         });
     });
-    Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])
-        ->get('order-statuses', [OrderStatusController::class, 'getAllStatuses']);
+
+    Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])->group(function () {
+        Route::get('categories', [CategoryController::class, 'getAllCategories']);
+        Route::prefix('category')->group(function () {
+            Route::post('create', [CategoryController::class, 'createCategory']);
+            Route::put('{uuid}', [CategoryController::class, 'updateCategory']);
+            Route::delete('{uuid}', [CategoryController::class, 'deleteCategory']);
+            Route::get('{uuid}', [CategoryController::class, 'getCategory']);
+        });
+    });
 });
