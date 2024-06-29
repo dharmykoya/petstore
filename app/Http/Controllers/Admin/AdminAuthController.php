@@ -22,7 +22,7 @@ class AdminAuthController extends Controller
      * @OA\Post(
      *      path="/api/v1/admin/create",
      *      operationId="registerUser",
-     *      tags={"Authentication"},
+     *      tags={"Admin"},
      *      summary="Register a new user (Admin)",
      *      description="Registers a new admin user.",
      *      @OA\RequestBody(
@@ -62,7 +62,7 @@ class AdminAuthController extends Controller
      *     summary="Login",
      *     description="Authenticate a user and return a JWT token.",
      *     operationId="login",
-     *     tags={"Auth"},
+     *     tags={"Admin"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/LoginRequest")
@@ -74,7 +74,7 @@ class AdminAuthController extends Controller
      *             type="object",
      *             @OA\Property(property="status", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="login successful."),
-     *             @OA\Property(property="data", ref="#/components/schemas/AdminLoginResource")
+     *             @OA\Property(property="data")
      *         )
      *     ),
      *     @OA\Response(
@@ -117,8 +117,8 @@ class AdminAuthController extends Controller
      *     path="/api/v1/logout",
      *     summary="Logout",
      *     description="Logout a user and invalidate the JWT token.",
-     *     operationId="logout",
-     *     tags={"Auth"},
+     *     operationId="admin-logout",
+     *     tags={"Admin"},
      *     @OA\Response(
      *         response=200,
      *         description="logout successful",

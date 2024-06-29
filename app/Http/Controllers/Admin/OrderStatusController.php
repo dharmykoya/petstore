@@ -27,14 +27,28 @@ class OrderStatusController extends Controller
      *     operationId="createOrderStatus",
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/CreateOrderStatusRequest")
+     *         description="Order status creation details",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="title",
+     *                 type="string",
+     *                 description="Title of the order status",
+     *                 example="Processing"
+     *             ),
+     *             @OA\Property(
+     *                 property="slug",
+     *                 type="string",
+     *                 description="Slug of the order status",
+     *                 example="processing"
+     *             )
+     *         )
      *     ),
      *     @OA\Response(
      *         response=201,
      *         description="Order status created successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="created successfully."),
+     *             @OA\Property(property="message", type="string", example="Order status created successfully."),
      *             @OA\Property(property="data", ref="#/components/schemas/OrderStatusResource")
      *         )
      *     ),
@@ -266,7 +280,7 @@ class OrderStatusController extends Controller
      *
      * @OA\Get(
      *     path="/api/v1/order-statuses",
-     *     tags={"Order Statuses"},
+     *     tags={"Order Status"},
      *     summary="Get all order statuses",
      *     description="Retrieve all order statuses based on provided parameters.",
      *     security={{"bearerAuth": {}}},

@@ -20,7 +20,7 @@ class OrderController extends Controller
      *     path="/api/v1/user/orders",
      *     summary="Get User Orders",
      *     description="Fetches the orders of the authenticated user with pagination, sorting, and filtering options.",
-     *     tags={"Orders"},
+     *     tags={"User"},
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
      *         name="page",
@@ -56,7 +56,7 @@ class OrderController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="orders fetched successfully."),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Order"))
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/OrderResource"))
      *         )
      *     ),
      *     @OA\Response(
