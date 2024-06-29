@@ -71,4 +71,15 @@ class CategoryService {
 
         return ['status' => true];
     }
+
+    public function getCategory($uuid) {
+        $category = Category::query()->where('uuid', $uuid)->first();
+
+        if (!$category) {
+            return ['status' => false, 'message' => 'Category not found.'];
+        }
+
+
+        return ['status' => true, 'data' => $category];
+    }
 }

@@ -233,4 +233,60 @@ class CategoryTest extends TestCase {
                 'message' => "You don't have permission to operate this route.",
             ]);
     }
+
+    public function test_admin_can_get_category()
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $category = Category::factory()->create();
+
+        $token = (new JwtService())->createToken($admin->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->getJson("/api/v1/category/{$category->uuid}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => true,
+                'data' => [
+                    'uuid' => $category->uuid,
+                    'title' => $category->title,
+                ]
+            ]);
+    }
+
+    public function test_non_admin_cannot_get_category()
+    {
+        $user = User::factory()->create(['is_admin' => false]);
+
+        $category = Category::factory()->create();
+        $token = (new JwtService())->createToken($user->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->getJson("/api/v1/category/{$category->uuid}");
+
+        $response->assertStatus(403)
+            ->assertJson([
+                'message' => "You don't have permission to operate this route."
+            ]);
+    }
+
+    public function test_category_not_found()
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $token = (new JwtService())->createToken($admin->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->getJson("/api/v1/category/non-existent-uuid");
+
+        // Assert response
+        $response->assertStatus(404)
+            ->assertJson([
+                'status' => false,
+                'message' => 'Category not found.'
+            ]);
+    }
 }

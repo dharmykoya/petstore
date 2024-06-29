@@ -141,4 +141,25 @@ class CategoryUnitTest extends TestCase
         $this->assertFalse($result['status']);
         $this->assertEquals('Category not found.', $result['message']);
     }
+
+    public function test_get_category_existing()
+    {
+        $category = Category::factory()->create();
+
+        $result = $this->categoryService->getCategory($category->uuid);
+
+        // Assert the result
+        $this->assertTrue($result['status']);
+        $this->assertEquals($category->uuid, $result['data']->uuid);
+    }
+
+    public function test_get_category_not_found()
+    {
+        // Call the method under test with a non-existent UUID
+        $result = $this->categoryService->getCategory('non-existent-uuid');
+
+        // Assert the result
+        $this->assertFalse($result['status']);
+        $this->assertEquals('Category not found.', $result['message']);
+    }
 }

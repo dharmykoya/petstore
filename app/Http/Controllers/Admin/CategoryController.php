@@ -304,4 +304,77 @@ class CategoryController extends Controller
             return $this->serverErrorResponse("Server Error", $exception);
         }
     }
+
+    /**
+     * Retrieve a category by UUID.
+     *
+     * @param string $uuid
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * @OA\Get(
+     *     path="/api/v1/category/{uuid}",
+     *     summary="Get a category by UUID",
+     *     tags={"Categories"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="UUID of the category to retrieve",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Category retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/CategoryResource")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized: Authentication failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden: User does not have permission",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="You don't have permission to operate this route.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Category not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Category not found.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Server Error")
+     *         )
+     *     )
+     * )
+     */
+    public function getCategory($uuid) {
+        try {
+            $status = $this->categoryService->getCategory($uuid);
+            if (!$status['status']) {
+                return $this->failedResponse($status['message'], Response::HTTP_NOT_FOUND);
+            }
+            return  $this->successResponse("", new CategoryResource($status['data']));
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
 }
