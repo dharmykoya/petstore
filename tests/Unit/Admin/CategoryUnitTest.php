@@ -123,4 +123,22 @@ class CategoryUnitTest extends TestCase
         $this->assertFalse($result['status']);
         $this->assertEquals('Category not found.', $result['message']);
     }
+
+    public function test_delete_category()
+    {
+        $category = Category::factory()->create();
+        $result = $this->categoryService->deleteCategory($category->uuid);
+
+        $this->assertTrue($result['status']);
+
+        $this->assertDatabaseMissing('categories', ['id' => $category->id]);
+    }
+
+    public function test_delete_non_existing_category()
+    {
+        $result = $this->categoryService->deleteCategory('non-existing-uuid');
+
+        $this->assertFalse($result['status']);
+        $this->assertEquals('Category not found.', $result['message']);
+    }
 }

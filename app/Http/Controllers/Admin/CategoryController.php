@@ -230,4 +230,78 @@ class CategoryController extends Controller
             return $this->serverErrorResponse("Server Error", $exception);
         }
     }
+
+    /**
+     * Delete a category by UUID.
+     *
+     * @param string $uuid
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * @OA\Delete(
+     *     path="/api/v1/category/{uuid}",
+     *     summary="Delete a category",
+     *     tags={"Categories"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="UUID of the category to delete",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Category deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Category deleted successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Failed to delete category",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unable to delete category.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden: User does not have permission",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="You don't have permission to operate this route.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Category not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Category not found.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Server Error")
+     *         )
+     *     )
+     * )
+     */
+    public function deleteCategory($uuid) {
+        try {
+            $category = $this->categoryService->deleteCategory($uuid);
+            if (!$category['status']) {
+                return $this->failedResponse($category['message']);
+            }
+            return  $this->successResponse("Category deleted successfully.");
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
 }

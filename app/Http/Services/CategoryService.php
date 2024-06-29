@@ -59,4 +59,16 @@ class CategoryService {
 
         return ['status' => true, 'message' => 'Update successful.', 'data' => $category];
     }
+
+    public function deleteCategory($uuid) {
+        $category = Category::query()->where('uuid', $uuid)->first();
+
+        if (!$category) {
+            return ['status' => false, 'message' => 'Category not found.'];
+        }
+
+        $category->delete();
+
+        return ['status' => true];
+    }
 }

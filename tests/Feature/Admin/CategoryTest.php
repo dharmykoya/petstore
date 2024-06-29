@@ -197,4 +197,40 @@ class CategoryTest extends TestCase {
             'message' => 'Category not found.',
         ]);
     }
+
+    public function test_admin_can_delete_category()
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $token = (new JwtService())->createToken($admin->toArray());
+
+        $category = Category::factory()->create();
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->deleteJson("/api/v1/category/{$category->uuid}");
+
+        $response->assertStatus(200)
+            ->assertJson(['status' => true]);
+
+        $this->assertDatabaseMissing('categories', ['id' => $category->id]);
+    }
+
+    public function test_non_admin_cannot_delete_category()
+    {
+        $user = User::factory()->create(['is_admin' => false]);
+        $category = Category::factory()->create();
+
+        $token = (new JwtService())->createToken($user->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->deleteJson("/api/v1/category/{$category->uuid}");
+
+        // Assert response
+        $response->assertStatus(403)
+            ->assertJson([
+                'message' => "You don't have permission to operate this route.",
+            ]);
+    }
 }
