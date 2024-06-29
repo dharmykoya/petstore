@@ -136,4 +136,65 @@ class CategoryTest extends TestCase {
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['title', 'slug']);
     }
+
+    public function test_admin_can_update_category()
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $category = Category::factory()->create();
+        $token = (new JwtService())->createToken($admin->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->putJson("/api/v1/category/{$category->uuid}", ['title' => 'Updated Title',]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => true,
+            'message' => 'Category edited successfully',
+            'data' => [
+                'title' => 'Updated Title',
+                'slug' => 'updated-title',
+            ],
+        ]);
+
+        $this->assertDatabaseHas('categories', [
+            'uuid' => $category->uuid,
+            'title' => 'Updated Title',
+            'slug' => 'updated-title',
+        ]);
+    }
+
+    public function test_non_admin_cannot_update_category()
+    {
+        $user = User::factory()->create(['is_admin' => false]);
+        $category = Category::factory()->create();
+
+        $token = (new JwtService())->createToken($user->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->putJson("/api/v1/category/{$category->uuid}", ['title' => 'Updated Title',]);
+
+        $response->assertStatus(403);
+        $response->assertJson([
+            'message' => "You don't have permission to operate this route.",
+        ]);
+    }
+
+    public function test_cannot_update_non_existent_category()
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $token = (new JwtService())->createToken($admin->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->putJson("/api/v1/category/ffrtt343345", ['title' => 'Updated Title',]);
+
+        $response->assertStatus(400);
+        $response->assertJson([
+            'status' => false,
+            'message' => 'Category not found.',
+        ]);
+    }
 }

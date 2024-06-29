@@ -42,4 +42,21 @@ class CategoryService {
 
         return $count ? "{$slug}-{$count}" : $slug;
     }
+
+    public function updateCategory($requestData, $uuid)
+    {
+        $category = Category::query()->where('uuid', $uuid)->first();
+
+        if (!$category) {
+            return ['status' => false, 'message' => 'Category not found.'];
+        }
+
+        if (empty($requestData['slug'])) {
+            $requestData['slug'] = $this->generateUniqueSlug($requestData['title'], $uuid);
+        }
+
+        $category->update($requestData);
+
+        return ['status' => true, 'message' => 'Update successful.', 'data' => $category];
+    }
 }

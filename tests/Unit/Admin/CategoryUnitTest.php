@@ -89,4 +89,38 @@ class CategoryUnitTest extends TestCase
         $this->assertNotEquals($category1->slug, $category2->slug);
         $this->assertDatabaseHas('categories', ['slug' => 'new-category-1']);
     }
+
+    public function test_it_updates_a_category()
+    {
+        $category = Category::factory()->create([
+            'title' => 'Original Title',
+        ]);
+
+        $data = [
+            'title' => 'Updated Category Title'
+        ];
+
+        $result = $this->categoryService->updateCategory($data, $category->uuid);
+
+        $this->assertTrue($result['status']);
+        $this->assertEquals('Update successful.', $result['message']);
+        $this->assertEquals('Updated Category Title', $result['data']->title);
+
+        $this->assertDatabaseHas('categories', [
+            'uuid' => $category->uuid,
+            'title' => 'Updated Category Title',
+        ]);
+    }
+
+    public function test_it_returns_error_if_category_not_found()
+    {
+        $data = [
+            'title' => 'Updated Category Title',
+        ];
+
+        $result = $this->categoryService->updateCategory($data, 'non-existing-uuid');
+
+        $this->assertFalse($result['status']);
+        $this->assertEquals('Category not found.', $result['message']);
+    }
 }

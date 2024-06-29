@@ -57,6 +57,7 @@ Route::prefix('v1')->group(function () {
         Route::get('categories', [CategoryController::class, 'getAllCategories']);
         Route::prefix('category')->group(function () {
             Route::post('create', [CategoryController::class, 'createCategory']);
+            Route::put('{uuid}', [CategoryController::class, 'updateCategory']);
         });
     });
 });

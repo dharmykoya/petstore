@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateCategoryRequest;
+use App\Http\Requests\Admin\UpdateCategoryRequest;
 use App\Http\Resources\Admin\CategoryResource;
 use App\Http\Services\CategoryService;
 use Illuminate\Http\Request;
@@ -155,6 +156,76 @@ class CategoryController extends Controller
         try {
             $category = $this->categoryService->createCategory($request->validated());
             return  $this->successResponse("category created successfully.", new CategoryResource($category), Response::HTTP_CREATED);
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/api/v1/category/{uuid}",
+     *     summary="Update a category",
+     *     tags={"Categories"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="UUID of the category to update"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="title", type="string", example="Updated Category Title"),
+     *             @OA\Property(property="description", type="string", example="Updated Category Description"),
+     *             @OA\Property(property="slug", type="string", example="updated-category-title")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Category edited successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Category edited successfully"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="title", type="string", example="Updated Category Title"),
+     *                 @OA\Property(property="slug", type="string", example="updated-category-title"),
+     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2023-01-01T00:00:00.000000Z"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2023-01-02T00:00:00.000000Z")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Category not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Category not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Server Error")
+     *         )
+     *     )
+     * )
+     */
+    public function updateCategory(UpdateCategoryRequest $request, $uuid) {
+        try {
+            $category = $this->categoryService->updateCategory($request->validated(), $uuid);
+            if (!$category['status']) {
+                return $this->failedResponse($category['message']);
+            }
+            return  $this->successResponse("Category edited successfully", new CategoryResource($category['data']));
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("Server Error", $exception);
         }
