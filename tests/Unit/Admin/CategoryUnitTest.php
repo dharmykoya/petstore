@@ -56,4 +56,37 @@ class CategoryUnitTest extends TestCase
         $this->assertCount(1, $categories);
         $this->assertEquals('First Category', $categories->items()[0]->title);
     }
+
+    public function test_it_creates_a_category()
+    {
+        $data = [
+            'title' => 'New Category',
+        ];
+
+        $category = $this->categoryService->createCategory($data);
+
+        $this->assertInstanceOf(Category::class, $category);
+        $this->assertDatabaseHas('categories', [
+            'title' => 'New Category',
+            'slug' => 'new-category'
+        ]);
+    }
+
+    public function test_it_generates_unique_slug_for_duplicate_titles()
+    {
+        // Create first category
+        $data1 = [
+            'title' => 'New Category',
+        ];
+        $category1 = $this->categoryService->createCategory($data1);
+
+        // Create second category with the same title
+        $data2 = [
+            'title' => 'New Category',
+        ];
+        $category2 = $this->categoryService->createCategory($data2);
+
+        $this->assertNotEquals($category1->slug, $category2->slug);
+        $this->assertDatabaseHas('categories', ['slug' => 'new-category-1']);
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Models\Category;
+use Illuminate\Support\Str;
 
 class CategoryService {
     public function getAllCategories($request) {
@@ -24,5 +25,21 @@ class CategoryService {
         }
 
         return $query->paginate($limit, ['*'], 'page', $page);
+    }
+
+    public function createCategory($requestData) {
+        if (empty($requestData['slug'])) {
+            $requestData['slug'] = $this->generateUniqueSlug($requestData['title']);
+        }
+
+        return Category::create($requestData);
+    }
+
+    protected function generateUniqueSlug($title, $id = 0)
+    {
+        $slug = Str::slug($title);
+        $count = Category::where('slug', 'like', "{$slug}%")->where('id', '!=', $id)->count();
+
+        return $count ? "{$slug}-{$count}" : $slug;
     }
 }

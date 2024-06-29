@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CreateCategoryRequest;
 use App\Http\Resources\Admin\CategoryResource;
 use App\Http\Services\CategoryService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class CategoryController extends Controller
 {
@@ -112,6 +114,47 @@ class CategoryController extends Controller
                 'status' => true,
                 'message' => 'Categories fetched successfully.'
             ]);
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("Server Error", $exception);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/category/create",
+     *     summary="Create a new category",
+     *     description="Create a new category. Only accessible by admins.",
+     *     tags={"Categories"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/CreateCategoryRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Category created successfully.",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="category created successfully."),
+     *             @OA\Property(property="data", ref="#/components/schemas/CategoryResource")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Server Error")
+     *         )
+     *     )
+     * )
+     */
+    public function createCategory(CreateCategoryRequest $request) {
+        try {
+            $category = $this->categoryService->createCategory($request->validated());
+            return  $this->successResponse("category created successfully.", new CategoryResource($category), Response::HTTP_CREATED);
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("Server Error", $exception);
         }

@@ -9,11 +9,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class CategoryTest extends TestCase
-{
+class CategoryTest extends TestCase {
     use RefreshDatabase;
-    public function test_admin_can_get_all_categories()
-    {
+
+    public function test_admin_can_get_all_categories() {
         $admin = User::factory()->create(['is_admin' => true]);
 
         Category::factory()->count(20)->create();
@@ -37,8 +36,7 @@ class CategoryTest extends TestCase
         $this->assertEquals('Categories fetched successfully.', $response->json('message'));
     }
 
-    public function test_non_admin_cannot_get_all_categories()
-    {
+    public function test_non_admin_cannot_get_all_categories() {
         // Create a non-admin user
         $user = User::factory()->create(['is_admin' => false]);
         $token = (new JwtService())->createToken($user->toArray());
@@ -49,7 +47,93 @@ class CategoryTest extends TestCase
 
         $response->assertStatus(403)
             ->assertJson([
-            'message' => "You don't have permission to operate this route.",
+                'message' => "You don't have permission to operate this route.",
+            ]);
+    }
+
+    public function test_admin_can_create_category() {
+        $admin = User::factory()->create(['is_admin' => 1]);
+
+        $data = [
+            'title' => 'New Category',
+            'description' => 'This is a description of the new category.',
+        ];
+
+        $token = (new JwtService())->createToken($admin->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->postJson("/api/v1/category/create", $data);
+
+        $response->assertStatus(201)
+            ->assertJson([
+                'status' => true,
+                'message' => 'category created successfully.',
+            ])
+            ->assertJsonStructure([
+                'status',
+                'message',
+                'data' => [
+                    'id',
+                    'uuid',
+                    'title',
+                    'slug',
+                    'created_at',
+                    'updated_at',
+                ],
+            ]);
+
+        $this->assertDatabaseHas('categories', [
+            'title' => 'New Category',
+            'slug' => 'new-category',
         ]);
+    }
+
+    public function test_non_admin_cannot_create_category() {
+        $user = User::factory()->create(['is_admin' => 0]);
+
+        $data = [
+            'title' => 'New Category'
+        ];
+
+        $token = (new JwtService())->createToken($user->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->postJson("/api/v1/category/create", $data);
+
+
+        $response->assertStatus(403)
+            ->assertJson([
+                'message' => "You don't have permission to operate this route."
+            ]);
+    }
+
+    public function test_unauthenticated_user_cannot_create_category() {
+        $data = [
+            'title' => 'New Category',
+        ];
+        $response = $this->postJson('/api/v1/category/create', $data);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_category_creation_fails_with_invalid_data() {
+        $admin = User::factory()->create(['is_admin' => 1]);
+
+        $data = [
+            'title' => '',
+            'slug' => '',
+        ];
+
+        $token = (new JwtService())->createToken($admin->toArray());
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->postJson("/api/v1/category/create", $data);
+
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['title', 'slug']);
     }
 }
