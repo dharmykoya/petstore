@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderStatusController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\Admin\AdminAuthController;
@@ -53,4 +54,10 @@ Route::prefix('v1')->group(function () {
     });
     Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])
         ->get('order-statuses', [OrderStatusController::class, 'getAllStatuses']);
+
+    Route::prefix('categories')->group(function () {
+        Route::middleware([AuthTokenIsValid::class, IsAdminMiddleware::class])->group(function () {
+            Route::get('', [CategoryController::class, 'getAllCategories']);
+        });
+    });
 });
