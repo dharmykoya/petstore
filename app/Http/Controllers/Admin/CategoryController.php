@@ -190,13 +190,7 @@ class CategoryController extends Controller
      *             type="object",
      *             @OA\Property(property="status", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Category edited successfully"),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="title", type="string", example="Updated Category Title"),
-     *                 @OA\Property(property="slug", type="string", example="updated-category-title"),
-     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2023-01-01T00:00:00.000000Z"),
-     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2023-01-02T00:00:00.000000Z")
-     *             )
+     *             @OA\Property(property="data", ref="#/components/schemas/CategoryResource")
      *         )
      *     ),
      *     @OA\Response(

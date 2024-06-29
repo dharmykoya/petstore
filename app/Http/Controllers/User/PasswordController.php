@@ -15,16 +15,20 @@ class PasswordController extends Controller
         $this->authService = $authService;
     }
 
+
     /**
      * @OA\Post(
-     *     path="/api/v1/user/forgot-password ",
+     *     path="/api/v1/user/forgot-password",
      *     summary="Send password reset link",
      *     description="Send a password reset link to the user's email.",
      *     operationId="sendPasswordResetLink",
-     *     tags={"Password"},
+     *     tags={"User"},
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/SendPasswordResetLinkRequest")
+     *         @OA\JsonContent(
+     *             required={"email"},
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com", description="The email address to send the password reset link")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -46,7 +50,10 @@ class PasswordController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="message", type="string", example="Server error message.")
      *         )
-     *     )
+     *     ),
+     *     security={
+     *         {"bearerAuth": {}}
+     *     }
      * )
      */
     public function sendPasswordResetLink(SendPasswordResetLinkRequest $request)
@@ -65,7 +72,7 @@ class PasswordController extends Controller
      *     summary="Reset password",
      *     description="Reset user's password using a password reset token.",
      *     operationId="resetPassword",
-     *     tags={"Password"},
+     *     tags={"User"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/ResetPasswordRequest")

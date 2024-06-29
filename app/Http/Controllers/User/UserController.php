@@ -73,7 +73,6 @@ class UserController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="name", type="string", example="John Doe"),
      *             @OA\Property(property="email", type="string", example="john.doe@example.com"),
-     *             // Add other user properties here as needed
      *         )
      *     ),
      *     @OA\Response(

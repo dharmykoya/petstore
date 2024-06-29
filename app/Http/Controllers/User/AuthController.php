@@ -14,18 +14,11 @@ use Illuminate\Http\Request;
 /**
  * @OA\Info(
  *      version="1.0.0",
- *      title="Laravel API Documentation",
- *      description="Swagger OpenAPI description for Laravel API",
+ *      title="Pet store API Documentation",
+ *      description="Pet store API",
  *      @OA\Contact(
- *          email="admin@example.com"
+ *          email="dharmykoya38@gmail.com"
  *      ),
- * )
- */
-
-/**
- * @OA\Tag(
- *     name="User",
- *     description="API Endpoints of User"
  * )
  */
 class AuthController extends Controller
@@ -39,7 +32,7 @@ class AuthController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/user/create",
-     *     tags={"Authentication"},
+     *     tags={"User"},
      *     summary="Register a new user",
      *     description="Create a new user account with the provided details",
      *     @OA\RequestBody(
@@ -108,8 +101,7 @@ class AuthController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/User")
+     *         description="successful operation"
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -132,10 +124,10 @@ class AuthController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/user/logout",
-     *     tags={"Auth"},
+     *     tags={"User"},
      *     summary="Logout the current user",
      *     description="Invalidate the current user's JWT token.",
-     *     operationId="logout",
+     *     operationId="user-logout",
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         description="Logout request",

@@ -22,7 +22,7 @@ class AdminUserController extends Controller
      *     summary="Get all users",
      *     description="Retrieve a paginated list of users with search and sorting options.",
      *     operationId="getUsers",
-     *     tags={"Users"},
+     *     tags={"Admin"},
      *     @OA\Parameter(
      *         name="page",
      *         in="query",
@@ -83,15 +83,15 @@ class AdminUserController extends Controller
      *         response=200,
      *         description="Successful response",
      *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Users fetched successfully."),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="array",
-     *                 @OA\Items(ref="#/components/schemas/User")
-     *             )
-     *         )
+     *              type="object",
+     *              @OA\Property(property="status", type="boolean", example=true),
+     *              @OA\Property(property="message", type="string", example="Users fetched successfully."),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/UserResource")
+     *              )
+     *          )
      *     ),
      *     @OA\Response(
      *         response=500,
@@ -203,7 +203,7 @@ class AdminUserController extends Controller
      *     path="/api/v1/admin/user-delete/{uuid}",
      *     summary="Delete a user",
      *     description="Delete a user account by UUID.",
-     *     tags={"Admin Users"},
+     *     tags={"Admin"},
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
      *         name="uuid",
