@@ -2,34 +2,70 @@
 
 namespace App\Http\Services;
 
+use Carbon\Carbon;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Token\Builder;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Validation\Constraint\RelatedTo;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
+use Lcobucci\JWT\Configuration;
 
 class JwtService
 {
     private $config;
+    protected $privateKeyPath;
+    protected $publicKeyPath;
 
     public function __construct()
     {
-        $this->config = (new Builder(new JoseEncoder(), ChainedFormatter::default()));
+        // path to keys
+        $this->privateKeyPath = storage_path('keys/private.key');
+        $this->publicKeyPath = storage_path('keys/public.key');
+
+        // Create keys if they don't exist
+        if (!file_exists($this->privateKeyPath) || !file_exists($this->publicKeyPath)) {
+            $this->generateKeys();
+        }
+
+        // Load private and public keys
+        $privateKey = InMemory::file($this->privateKeyPath);
+        $publicKey = InMemory::file($this->publicKeyPath);
+
+        // Create the JWT configuration
+        $this->config = Configuration::forAsymmetricSigner(
+            new Sha256(),
+            $privateKey,
+            $publicKey
+        );
+    }
+
+    protected function generateKeys()
+    {
+        // Ensure the keys directory exists
+        $keysDir = dirname($this->privateKeyPath);
+        if (!is_dir($keysDir)) {
+            mkdir($keysDir, 0700, true);
+        }
+
+        // Generate the private key
+        exec("openssl genpkey -algorithm RSA -out {$this->privateKeyPath} -pkeyopt rsa_keygen_bits:2048");
+
+        // Generate the public key from the private key
+        exec("openssl rsa -pubout -in {$this->privateKeyPath} -out {$this->publicKeyPath}");
     }
 
     public function createToken(array $claims): string
     {
         $now = new \DateTimeImmutable();
-        $signingKey   = InMemory::plainText(random_bytes(32));
         return $this->config
+            ->builder()
             ->issuedBy(config('app.url'))
             ->issuedAt($now)
             ->expiresAt($now->modify('+1 hour'))
             ->withClaim('user', $claims)
-            ->getToken(new Sha256(), $signingKey)->toString();
+            ->getToken($this->config->signer(), $this->config->signingKey())->toString();
     }
 
     public function parseToken(string $jwt): array {
@@ -52,18 +88,37 @@ class JwtService
         }
     }
 
+    public function isTokenExpired(string $token): bool
+    {
+        try {
+            $parsedToken = $this->config->parser()->parse($token);
+
+            // Get the expiration timestamp from the parsed token
+            $expTimestamp = $parsedToken->claims()->get('exp');
+
+            $expTimestampMod = Carbon::instance($expTimestamp);
+
+            // Check if the expiration time is in the past (i.e., token is expired)
+            return Carbon::now()->greaterThan($expTimestampMod);
+
+        } catch (\Throwable $e) {
+            return true;
+        }
+    }
 
     public function validateToken(string $jwt)
     {
+        if ($this->isTokenExpired($jwt)) {
+            throw new \Exception('Token has expired');
+        }
         $parser = new Parser(new JoseEncoder());
         $token = $parser->parse($jwt);
         $validator = new Validator();
+        $constraints = [
+            new SignedWith($this->config->signer(), $this->config->signingKey()),
+        ];
 
-        if (!$validator->validate($token, new RelatedTo('1234567891'))) {
-            throw new \Exception('Token is invalid.');
-        }
-
-        if (! $validator->validate($token, new RelatedTo('1234567890'))) {
+        if (!$validator->validate($token, ...$constraints)) {
             throw new \Exception('Token is invalid.');
         }
 
