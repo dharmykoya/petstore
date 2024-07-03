@@ -77,7 +77,7 @@ class OrderController extends Controller
      *     )
      * )
      */
-    public function getUserOrders(Request $request) {
+    public function getUserOrders(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection {
         try {
             $orders = $this->orderService->getOrders($request);
             return OrderResource::collection($orders)->additional([

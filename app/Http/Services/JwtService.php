@@ -70,8 +70,7 @@ class JwtService
 
     public function parseToken(string $jwt): array {
         try {
-            $parser = new Parser(new JoseEncoder());
-            $token = $parser->parse($jwt);
+            $token = $this->config->parser()->parse($jwt);
             return $token->claims()->all();
         } catch (\Exception $exception) {
             abort(401, "Invalid token");
@@ -80,8 +79,7 @@ class JwtService
 
     public function getUserFromToken(string $jwt): array {
         try {
-            $parser = new Parser(new JoseEncoder());
-            $token = $parser->parse($jwt);
+            $token = $this->config->parser()->parse($jwt);
             return $token->claims()->get('user');
         } catch (\Exception $exception) {
             abort(401, "Invalid token");
@@ -92,7 +90,6 @@ class JwtService
     {
         try {
             $parsedToken = $this->config->parser()->parse($token);
-
             // Get the expiration timestamp from the parsed token
             $expTimestamp = $parsedToken->claims()->get('exp');
 
@@ -111,8 +108,8 @@ class JwtService
         if ($this->isTokenExpired($jwt)) {
             throw new \Exception('Token has expired');
         }
-        $parser = new Parser(new JoseEncoder());
-        $token = $parser->parse($jwt);
+
+        $token = $this->config->parser()->parse($jwt);
         $validator = new Validator();
         $constraints = [
             new SignedWith($this->config->signer(), $this->config->signingKey()),

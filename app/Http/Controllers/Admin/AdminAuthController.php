@@ -47,7 +47,7 @@ class AdminAuthController extends Controller
      *      )
      * )
      */
-    public function register(RegisterUserRequest $request) {
+    public function register(RegisterUserRequest $request): \Illuminate\Http\JsonResponse {
         try {
             $this->authService->createUser($request->validated(), true);
             return  $this->successResponse("Admin created successfully, please login to continue.", [], Response::HTTP_CREATED);
@@ -100,7 +100,7 @@ class AdminAuthController extends Controller
      *     }
      * )
      */
-    public function login(LoginRequest $request) {
+    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse {
         try {
             $user = $this->authService->loginUser($request->validated());
             if (!$user['status']) {
@@ -142,7 +142,7 @@ class AdminAuthController extends Controller
      *     }
      * )
      */
-    public function logout(Request $request) {
+    public function logout(Request $request): \Illuminate\Http\JsonResponse {
         try {
             $this->authService->logout($request);
             return  $this->successResponse("logout successful");

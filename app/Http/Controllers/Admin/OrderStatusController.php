@@ -66,7 +66,7 @@ class OrderStatusController extends Controller
      *     }
      * )
      */
-    public function create(CreateOrderStatusRequest $request) {
+    public function create(CreateOrderStatusRequest $request): \Illuminate\Http\JsonResponse {
         try {
             $status = $this->orderStatusService->createStatus($request->validated());
             return  $this->successResponse("created successfully.", new OrderStatusResource($status), Response::HTTP_CREATED);
@@ -135,7 +135,7 @@ class OrderStatusController extends Controller
      *     )
      * )
      */
-    public function editStatus(UpdateOrderStatusRequest $request, $uuid) {
+    public function editStatus(UpdateOrderStatusRequest $request, $uuid): \Illuminate\Http\JsonResponse {
         try {
             $status = $this->orderStatusService->editStatus($request->validated(), $uuid);
             if (!$status['status']) {
@@ -188,7 +188,7 @@ class OrderStatusController extends Controller
      *     )
      * )
      */
-    public function deleteStatus($uuid) {
+    public function deleteStatus($uuid): \Illuminate\Http\JsonResponse {
         try {
             $status = $this->orderStatusService->deleteStatus($uuid);
             if (!$status['status']) {
@@ -260,7 +260,7 @@ class OrderStatusController extends Controller
      *     )
      * )
      */
-    public function getStatus($uuid) {
+    public function getStatus($uuid): \Illuminate\Http\JsonResponse {
         try {
             $status = $this->orderStatusService->getStatus($uuid);
             if (!$status['status']) {
@@ -340,7 +340,7 @@ class OrderStatusController extends Controller
      *     ),
      * )
      */
-    public function getAllStatuses(Request $request) {
+    public function getAllStatuses(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection {
         try {
             $status = $this->orderStatusService->getAllStatus($request);
 

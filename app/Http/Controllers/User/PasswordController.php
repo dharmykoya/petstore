@@ -56,8 +56,7 @@ class PasswordController extends Controller
      *     }
      * )
      */
-    public function sendPasswordResetLink(SendPasswordResetLinkRequest $request)
-    {
+    public function sendPasswordResetLink(SendPasswordResetLinkRequest $request): \Illuminate\Http\JsonResponse {
         try {
             $this->authService->sendPasswordResetLink($request->validated());
             return $this->successResponse('Reset link sent to your email.');
@@ -107,7 +106,7 @@ class PasswordController extends Controller
      *     )
      * )
      */
-    public function resetPassword(ResetPasswordRequest $request) {
+    public function resetPassword(ResetPasswordRequest $request): \Illuminate\Http\JsonResponse {
 
         try {
             $resetPassword = $this->authService->resetPassword($request->validated());
