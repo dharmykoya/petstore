@@ -17,25 +17,37 @@ class OrderStatusesTableSeeder extends Seeder
         DB::table('order_statuses')->insert([
             [
                 'uuid' => Str::uuid(),
-                'title' => 'Pending',
+                'title' => 'pending payment',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'uuid' => Str::uuid(),
-                'title' => 'Paid',
+                'title' => 'paid',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'uuid' => Str::uuid(),
-                'title' => 'Shipped',
+                'title' => 'shipped',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'uuid' => Str::uuid(),
-                'title' => 'Delivered',
+                'title' => 'delivered',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'uuid' => Str::uuid(),
+                'title' => 'open',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'uuid' => Str::uuid(),
+                'title' => 'cancelled',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
