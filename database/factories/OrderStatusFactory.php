@@ -18,7 +18,7 @@ class OrderStatusFactory extends Factory
     {
         return [
             'uuid' => $this->faker->uuid,
-            'title' => $this->faker->randomElement(['Pending', 'Paid', 'Shipped', 'Delivered']),
+            'title' => $this->faker->randomElement(['pending payment', 'paid', 'shipped', 'delivered', 'open', 'cancelled']),
             'created_at' => now(),
             'updated_at' => now(),
         ];
