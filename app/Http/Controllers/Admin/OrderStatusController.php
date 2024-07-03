@@ -135,7 +135,7 @@ class OrderStatusController extends Controller
      *     )
      * )
      */
-    public function editStatus(UpdateOrderStatusRequest $request, $uuid): \Illuminate\Http\JsonResponse {
+    public function editStatus(UpdateOrderStatusRequest $request, string $uuid): \Illuminate\Http\JsonResponse {
         try {
             $status = $this->orderStatusService->editStatus($request->validated(), $uuid);
             if (!$status['status']) {
@@ -188,7 +188,7 @@ class OrderStatusController extends Controller
      *     )
      * )
      */
-    public function deleteStatus($uuid): \Illuminate\Http\JsonResponse {
+    public function deleteStatus(string $uuid): \Illuminate\Http\JsonResponse {
         try {
             $status = $this->orderStatusService->deleteStatus($uuid);
             if (!$status['status']) {
@@ -260,7 +260,7 @@ class OrderStatusController extends Controller
      *     )
      * )
      */
-    public function getStatus($uuid): \Illuminate\Http\JsonResponse {
+    public function getStatus(string $uuid): \Illuminate\Http\JsonResponse {
         try {
             $status = $this->orderStatusService->getStatus($uuid);
             if (!$status['status']) {

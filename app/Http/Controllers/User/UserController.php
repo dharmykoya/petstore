@@ -46,7 +46,7 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function getUser() {
+    public function getUser(): \Illuminate\Http\JsonResponse {
         try {
             $user = $this->userService->getUser(auth()->user()->uuid);
             if (!$user['status']) {
@@ -103,7 +103,7 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function editUser(EditUserRequest $request) {
+    public function editUser(EditUserRequest $request): \Illuminate\Http\JsonResponse {
         try {
             $user = $this->userService->editUser($request->validated(), auth()->user()->uuid);
             if (!$user['status']) {
@@ -155,7 +155,7 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function deleteUser() {
+    public function deleteUser(): \Illuminate\Http\JsonResponse {
         try {
             $user = $this->userService->deleteUser(auth()->user()->uuid);
             if (!$user['status']) {

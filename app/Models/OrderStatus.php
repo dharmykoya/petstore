@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasUuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use \Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class OrderStatus
@@ -28,9 +29,9 @@ class OrderStatus extends Model
     /**
      * Get the orders for the order status.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany<Order>
      */
-    public function orders()
+    public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
     }

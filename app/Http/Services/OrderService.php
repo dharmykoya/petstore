@@ -3,10 +3,18 @@
 namespace App\Http\Services;
 
 use App\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 
 class OrderService {
-    public function getOrders($request)
-    {
+    /**
+     * Get all orders with pagination.
+     *
+     * @param Request $request
+     * @return LengthAwarePaginator<Order>
+     */
+    public function getOrders(Request $request): LengthAwarePaginator {
         $authUser = auth()->user();
 
         $page = $request->input('page', 1);

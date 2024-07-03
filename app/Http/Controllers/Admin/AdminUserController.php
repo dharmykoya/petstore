@@ -186,7 +186,7 @@ class AdminUserController extends Controller
      *     )
      * )
      */
-    public function editUser(AdminEditUserRequest $request, $uuid): \Illuminate\Http\JsonResponse {
+    public function editUser(AdminEditUserRequest $request, string $uuid): \Illuminate\Http\JsonResponse {
         try {
             $user = $this->userService->editUser($request->validated(), $uuid);
             if (!$user['status']) {
@@ -242,7 +242,7 @@ class AdminUserController extends Controller
      *     )
      * )
      */
-    public function deleteUser($uuid): \Illuminate\Http\JsonResponse {
+    public function deleteUser(string $uuid): \Illuminate\Http\JsonResponse {
         try {
             $user = $this->userService->deleteUser($uuid);
             if (!$user['status']) {

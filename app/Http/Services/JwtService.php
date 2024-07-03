@@ -14,9 +14,9 @@ use Lcobucci\JWT\Configuration;
 
 class JwtService
 {
-    private $config;
-    protected $privateKeyPath;
-    protected $publicKeyPath;
+    private Configuration $config;
+    protected string $privateKeyPath;
+    protected string $publicKeyPath;
 
     public function __construct()
     {
@@ -41,8 +41,7 @@ class JwtService
         );
     }
 
-    protected function generateKeys()
-    {
+    protected function generateKeys(): void {
         // Ensure the keys directory exists
         $keysDir = dirname($this->privateKeyPath);
         if (!is_dir($keysDir)) {
@@ -56,6 +55,12 @@ class JwtService
         exec("openssl rsa -pubout -in {$this->privateKeyPath} -out {$this->publicKeyPath}");
     }
 
+    /**
+     * Create a JWT token.
+     *
+     * @param array<string, mixed> $claims
+     * @return string
+     */
     public function createToken(array $claims): string
     {
         $now = new \DateTimeImmutable();
@@ -68,6 +73,12 @@ class JwtService
             ->getToken($this->config->signer(), $this->config->signingKey())->toString();
     }
 
+    /**
+     * Parse a JWT token and return the claims.
+     *
+     * @param string $jwt
+     * @return array<string, mixed>
+     */
     public function parseToken(string $jwt): array {
         try {
             $token = $this->config->parser()->parse($jwt);
@@ -77,7 +88,7 @@ class JwtService
         }
     }
 
-    public function getUserFromToken(string $jwt): array {
+    public function getUserFromToken(string $jwt): string {
         try {
             $token = $this->config->parser()->parse($jwt);
             return $token->claims()->get('user');
@@ -103,8 +114,14 @@ class JwtService
         }
     }
 
-    public function validateToken(string $jwt)
-    {
+    /**
+     * Validate a JWT token.
+     *
+     * @param string $jwt
+     * @return array<string, mixed>
+     * @throws \Exception
+     */
+    public function validateToken(string $jwt): array {
         if ($this->isTokenExpired($jwt)) {
             throw new \Exception('Token has expired');
         }

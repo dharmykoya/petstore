@@ -213,7 +213,7 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function updateCategory(UpdateCategoryRequest $request, $uuid): \Illuminate\Http\JsonResponse {
+    public function updateCategory(UpdateCategoryRequest $request, string $uuid): \Illuminate\Http\JsonResponse {
         try {
             $category = $this->categoryService->updateCategory($request->validated(), $uuid);
             if (!$category['status']) {

@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -16,12 +17,25 @@ class AuthService {
         $this->jwtService = $jwtService;
     }
 
-    public function createUser($requestData, $isAdmin = false) {
+    /**
+     * Create a new user.
+     *
+     * @param array<string, mixed> $requestData
+     * @param bool $isAdmin
+     * @return User
+     */
+    public function createUser(array $requestData, bool $isAdmin = false): User {
         if ($isAdmin) $requestData['is_admin'] = true;
         return User::create($requestData);
     }
 
-    public function loginUser($requestData) {
+    /**
+     * Login user.
+     *
+     * @param array<string, mixed> $requestData
+     * @return array<string, mixed> array
+     */
+    public function loginUser(array $requestData): array {
         $user = User::query()->where('email', $requestData['email'])->first();
 
         if (!$user || !Hash::check($requestData['password'], $user->password)) {
@@ -33,13 +47,18 @@ class AuthService {
         return ['status' => true, 'data' => $user];
     }
 
-    public function logout($request) {
+    public function logout(Request $request): void {
         $token = $request->bearerToken();
         DB::table('token_blacklists')->insert(['token' => $token]);
     }
 
-    public function sendPasswordResetLink($data)
-    {
+    /**
+     * Send password reset link.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    public function sendPasswordResetLink(array $data): array {
         $user = User::where('email', $data['email'])->first();
 
         if (!$user) {
@@ -68,7 +87,13 @@ class AuthService {
         ];
     }
 
-    public function resetPassword($data) {
+    /**
+     * reset password.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    public function resetPassword(array $data): array {
         $reset = DB::table('password_reset_tokens')
             ->where('email', $data['email'])
             ->first();
