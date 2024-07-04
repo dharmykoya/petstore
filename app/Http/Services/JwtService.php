@@ -97,10 +97,17 @@ class JwtService
         }
     }
 
-    public function getUserFromToken(string $jwt): string {
+    /**
+     * Parse a JWT token and return the claims.
+     *
+     * @param string $jwt
+     * @return array<string, mixed>
+     */
+    public function getUserFromToken(string $jwt): array {
         try {
             /** @var Plain $token */
             $token = $this->config->parser()->parse($jwt);
+
             return $token->claims()->get('user');
         } catch (\Exception $exception) {
             abort(401, "Invalid token");

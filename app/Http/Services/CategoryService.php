@@ -51,7 +51,7 @@ class CategoryService {
 
     protected function generateUniqueSlug(string $title, int $id = 0): string {
         $slug = Str::slug($title);
-        $count = Category::where('slug', 'like', "{$slug}%")->where('uuid', '!=', $id)->count();
+        $count = Category::where('slug', 'like', "{$slug}%")->where('id', '!=', $id)->count();
 
         return $count ? "{$slug}-{$count}" : $slug;
     }

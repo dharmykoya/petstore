@@ -14,6 +14,7 @@ parameters:
     excludePaths:
         - ./*/*/FileToBeExcluded.php
         - bootstrap/*
+
         - storage/*
 #        - app/Http/Services/JwtService.php
 #
