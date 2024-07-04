@@ -107,7 +107,7 @@ class AdminUserController extends Controller
      *     }
      * )
      */
-    public function getUsers(Request $request) {
+    public function getUsers(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection {
         try {
             $orders = $this->userService->getUsers($request);
             return UserResource::collection($orders)->additional([
@@ -186,7 +186,7 @@ class AdminUserController extends Controller
      *     )
      * )
      */
-    public function editUser(AdminEditUserRequest $request, $uuid) {
+    public function editUser(AdminEditUserRequest $request, string $uuid): \Illuminate\Http\JsonResponse {
         try {
             $user = $this->userService->editUser($request->validated(), $uuid);
             if (!$user['status']) {
@@ -242,7 +242,7 @@ class AdminUserController extends Controller
      *     )
      * )
      */
-    public function deleteUser($uuid) {
+    public function deleteUser(string $uuid): \Illuminate\Http\JsonResponse {
         try {
             $user = $this->userService->deleteUser($uuid);
             if (!$user['status']) {

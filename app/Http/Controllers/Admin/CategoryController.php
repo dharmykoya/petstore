@@ -107,7 +107,7 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function getAllCategories(Request $request) {
+    public function getAllCategories(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection {
         try {
             $categories = $this->categoryService->getAllCategories($request);
 
@@ -152,7 +152,7 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function createCategory(CreateCategoryRequest $request) {
+    public function createCategory(CreateCategoryRequest $request): \Illuminate\Http\JsonResponse {
         try {
             $category = $this->categoryService->createCategory($request->validated());
             return  $this->successResponse("category created successfully.", new CategoryResource($category), Response::HTTP_CREATED);
@@ -213,7 +213,7 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function updateCategory(UpdateCategoryRequest $request, $uuid) {
+    public function updateCategory(UpdateCategoryRequest $request, string $uuid): \Illuminate\Http\JsonResponse {
         try {
             $category = $this->categoryService->updateCategory($request->validated(), $uuid);
             if (!$category['status']) {
@@ -360,7 +360,7 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function getCategory($uuid) {
+    public function getCategory($uuid): \Illuminate\Http\JsonResponse {
         try {
             $status = $this->categoryService->getCategory($uuid);
             if (!$status['status']) {

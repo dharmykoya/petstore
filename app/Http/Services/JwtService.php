@@ -11,12 +11,13 @@ use Lcobucci\JWT\Validation\Constraint\RelatedTo;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
 use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Token\Plain;
 
 class JwtService
 {
-    private $config;
-    protected $privateKeyPath;
-    protected $publicKeyPath;
+    private Configuration $config;
+    protected string $privateKeyPath;
+    protected string $publicKeyPath;
 
     public function __construct()
     {
@@ -30,8 +31,8 @@ class JwtService
         }
 
         // Load private and public keys
-        $privateKey = InMemory::file($this->privateKeyPath);
-        $publicKey = InMemory::file($this->publicKeyPath);
+        $privateKey = $this->getKey($this->privateKeyPath);
+        $publicKey = $this->getKey($this->publicKeyPath);
 
         // Create the JWT configuration
         $this->config = Configuration::forAsymmetricSigner(
@@ -41,8 +42,14 @@ class JwtService
         );
     }
 
-    protected function generateKeys()
-    {
+    protected function getKey(string $path): InMemory {
+        if (empty($path) || !file_exists($path)) {
+            throw new \InvalidArgumentException("Key path is invalid or does not exist: $path");
+        }
+        return InMemory::file($path);
+    }
+
+    protected function generateKeys(): void {
         // Ensure the keys directory exists
         $keysDir = dirname($this->privateKeyPath);
         if (!is_dir($keysDir)) {
@@ -56,6 +63,12 @@ class JwtService
         exec("openssl rsa -pubout -in {$this->privateKeyPath} -out {$this->publicKeyPath}");
     }
 
+    /**
+     * Create a JWT token.
+     *
+     * @param array<string, mixed> $claims
+     * @return string
+     */
     public function createToken(array $claims): string
     {
         $now = new \DateTimeImmutable();
@@ -68,20 +81,33 @@ class JwtService
             ->getToken($this->config->signer(), $this->config->signingKey())->toString();
     }
 
+    /**
+     * Parse a JWT token and return the claims.
+     *
+     * @param string $jwt
+     * @return array<string, mixed>
+     */
     public function parseToken(string $jwt): array {
         try {
-            $parser = new Parser(new JoseEncoder());
-            $token = $parser->parse($jwt);
+            /** @var Plain $token */
+            $token = $this->config->parser()->parse($jwt);
             return $token->claims()->all();
         } catch (\Exception $exception) {
             abort(401, "Invalid token");
         }
     }
 
+    /**
+     * Parse a JWT token and return the claims.
+     *
+     * @param string $jwt
+     * @return array<string, mixed>
+     */
     public function getUserFromToken(string $jwt): array {
         try {
-            $parser = new Parser(new JoseEncoder());
-            $token = $parser->parse($jwt);
+            /** @var Plain $token */
+            $token = $this->config->parser()->parse($jwt);
+
             return $token->claims()->get('user');
         } catch (\Exception $exception) {
             abort(401, "Invalid token");
@@ -91,8 +117,8 @@ class JwtService
     public function isTokenExpired(string $token): bool
     {
         try {
+            /** @var Plain $parsedToken */
             $parsedToken = $this->config->parser()->parse($token);
-
             // Get the expiration timestamp from the parsed token
             $expTimestamp = $parsedToken->claims()->get('exp');
 
@@ -106,13 +132,19 @@ class JwtService
         }
     }
 
-    public function validateToken(string $jwt)
-    {
+    /**
+     * Validate a JWT token.
+     *
+     * @param string $jwt
+     * @return array<string, mixed>
+     * @throws \Exception
+     */
+    public function validateToken(string $jwt): array {
         if ($this->isTokenExpired($jwt)) {
             throw new \Exception('Token has expired');
         }
-        $parser = new Parser(new JoseEncoder());
-        $token = $parser->parse($jwt);
+        /** @var Plain $token */
+        $token = $this->config->parser()->parse($jwt);
         $validator = new Validator();
         $constraints = [
             new SignedWith($this->config->signer(), $this->config->signingKey()),

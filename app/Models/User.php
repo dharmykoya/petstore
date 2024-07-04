@@ -9,6 +9,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Class User
+ * @package App\Models
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property string $first_name
+ * @property string $last_name
+ * @property bool $is_admin
+ * @property string $email
+ * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property string|null $avatar
+ * @property string|null $address
+ * @property string|null $phone_number
+ * @property bool $is_marketing
+ */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;

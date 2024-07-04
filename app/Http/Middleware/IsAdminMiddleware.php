@@ -17,7 +17,7 @@ class IsAdminMiddleware
     {
         $authUser = auth()->user();
 
-        if (!$authUser->is_admin) {
+        if (!$authUser || !$authUser->is_admin) {
             abort(Response::HTTP_FORBIDDEN, "You don't have permission to operate this route.");
         }
 

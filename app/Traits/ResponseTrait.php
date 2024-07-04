@@ -6,20 +6,34 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Contracts\Support\Responsable;
+use JsonSerializable;
 
 trait ResponseTrait {
     /**
      * Return a generic successful HTTP response
+     *
+     * @param string $message
+     * @param string|JsonSerializable|Responsable|null|array<string, mixed> $data
+     * @param int $status
+     * @return JsonResponse
      */
-    public function successResponse(string $message, $data = null, int $status = 200): JsonResponse
+    public function successResponse(string $message, JsonSerializable|null|array|Responsable|string $data = null, int $status = 200): JsonResponse
     {
         return $this->jsonResponse($message, $status, $data);
     }
 
+
     /**
      * Return a generic client HTTP error response
+     *
+     * @param string $message
+     * @param int $status
+     * @param null | array<string, mixed> $error
+     *
+     * @return JsonResponse
      */
-    public function failedResponse(string $message, int $status = 400, $error = null): JsonResponse
+    public function failedResponse(string $message, int $status = 400, array $error = null): JsonResponse
     {
         return $this->jsonResponse($message, $status, $error);
     }
@@ -27,6 +41,11 @@ trait ResponseTrait {
 
     /**
      * Return a generic server HTTP error response
+     *
+     * @param string $string
+     * @param Exception|null $exception
+     * @param int $status
+     * @return JsonResponse
      */
     public function serverErrorResponse(string $string, Exception $exception = null, int $status = 500): JsonResponse
     {
@@ -51,8 +70,13 @@ trait ResponseTrait {
 
     /**
      * Return a generic HTTP response
+     * @param string $message
+     * @param int $status
+     * @param array<string, mixed> |null $data
+     *
+     * @return JsonResponse
      */
-    public function jsonResponse(string $message, int $status, $data = null): JsonResponse
+    public function jsonResponse(string $message, int $status, JsonSerializable|null|array|Responsable|string $data = null): JsonResponse
     {
         $is_successful = $this->isStatusCodeSuccessful($status);
 

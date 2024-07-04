@@ -46,9 +46,13 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function getUser() {
+    public function getUser(): \Illuminate\Http\JsonResponse {
         try {
-            $user = $this->userService->getUser(auth()->user()->uuid);
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return $this->failedResponse('User is not authenticated.', 401);
+            }
+            $user = $this->userService->getUser($authUser->uuid);
             if (!$user['status']) {
                 return $this->failedResponse($user['message']);
             }
@@ -103,9 +107,13 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function editUser(EditUserRequest $request) {
+    public function editUser(EditUserRequest $request): \Illuminate\Http\JsonResponse {
         try {
-            $user = $this->userService->editUser($request->validated(), auth()->user()->uuid);
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return $this->failedResponse('User is not authenticated.', 401);
+            }
+            $user = $this->userService->editUser($request->validated(), $authUser->uuid);
             if (!$user['status']) {
                 return $this->failedResponse($user['message']);
             }
@@ -155,9 +163,13 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function deleteUser() {
+    public function deleteUser(): \Illuminate\Http\JsonResponse {
         try {
-            $user = $this->userService->deleteUser(auth()->user()->uuid);
+            $authUser = auth()->user();
+            if (!$authUser) {
+                return $this->failedResponse('User is not authenticated.', 401);
+            }
+            $user = $this->userService->deleteUser($authUser->uuid);
             if (!$user['status']) {
                 return $this->failedResponse("Unable to delete account.");
             }

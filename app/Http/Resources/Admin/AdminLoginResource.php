@@ -5,6 +5,18 @@ namespace App\Http\Resources\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $uuid
+ * @property string $first_name
+ * @property string $last_name
+ * @property bool $is_admin
+ * @property string $email
+ * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property string|null $avatar
+ * @property string|null $address
+ * @property string|null $phone_number
+ * @property string $token
+ */
 class AdminLoginResource extends JsonResource
 {
     /**

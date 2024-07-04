@@ -3,13 +3,28 @@
 namespace App\Http\Services;
 
 use App\Models\OrderStatus;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class OrderStatusService {
-    public function createStatus($requestData) {
+    /**
+     * Get all orders with pagination.
+     *
+     * @param array<string, mixed> $requestData
+     * @return OrderStatus
+     */
+    public function createStatus(array $requestData): OrderStatus {
         return OrderStatus::create($requestData);
     }
 
-    public function editStatus($requestData, $uuid)
+    /**
+     * update Status.
+     *
+     * @param array<string, mixed> $requestData
+     * @param string $uuid
+     * @return array<string, mixed>
+     */
+    public function editStatus(array $requestData, string $uuid): array
     {
         $status = OrderStatus::query()->where('uuid', $uuid)->first();
 
@@ -22,7 +37,13 @@ class OrderStatusService {
         return ['status' => true, 'message' => 'Update successful.', 'data' => $status];
     }
 
-    public function deleteStatus($uuid) {
+    /**
+     * delete Status.
+     *
+     * @param string $uuid
+     * @return array<string, mixed>
+     */
+    public function deleteStatus(string $uuid): array {
         $status = OrderStatus::query()->with('orders')->where('uuid', $uuid)->first();
 
         if (!$status) {
@@ -38,7 +59,13 @@ class OrderStatusService {
         return ['status' => true];
     }
 
-    public function getStatus($uuid) {
+    /**
+     * get Status.
+     *
+     * @param string $uuid
+     * @return array<string, mixed>
+     */
+    public function getStatus(string $uuid): array {
         $status = OrderStatus::query()->where('uuid', $uuid)->first();
 
         if (!$status) {
@@ -49,7 +76,13 @@ class OrderStatusService {
         return ['status' => true, 'data' => $status];
     }
 
-    public function getAllStatus($request) {
+    /**
+     * Get all order status with pagination.
+     *
+     * @param Request $request
+     * @return LengthAwarePaginator<OrderStatus>
+     */
+    public function getAllStatus(Request $request): LengthAwarePaginator {
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 15);
         $sortBy = $request->input('sort_by', 'created_at');

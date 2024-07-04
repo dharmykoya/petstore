@@ -3,9 +3,18 @@
 namespace App\Http\Services;
 
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class UserService {
-    public function getUser($uuid) {
+
+    /**
+     * get User.
+     *
+     * @param string $uuid
+     * @return array<string, mixed>
+     */
+    public function getUser(string $uuid): array {
         $user = User::query()->select([
             'uuid',
             'first_name',
@@ -24,7 +33,15 @@ class UserService {
         return ['status' => true, 'message' => 'User found.', 'data' => $user];
     }
 
-    public function editUser($requestData, $uuid)
+
+    /**
+     * update User.
+     *
+     * @param array<string, mixed> $requestData
+     * @param string $uuid
+     * @return array<string, mixed>
+     */
+    public function editUser(array $requestData, string $uuid): array
     {
         $user = User::query()->where('uuid', $uuid)->first();
 
@@ -41,7 +58,13 @@ class UserService {
         return ['status' => true, 'message' => 'Update successful.', 'data' => $user];
     }
 
-    public function deleteUser($uuid) {
+    /**
+     * update User.
+     *
+     * @param string $uuid
+     * @return array<string, mixed>
+     */
+    public function deleteUser(string $uuid): array {
         $user = User::query()->where('uuid', $uuid)->first();
         if (!$user) {
             return ['status' => false];
@@ -56,8 +79,13 @@ class UserService {
         return ['status' => true];
     }
 
-    public function getUsers($request)
-    {
+    /**
+     * Get all users with pagination.
+     *
+     * @param Request $request
+     * @return LengthAwarePaginator<User>
+     */
+    public function getUsers(Request $request): LengthAwarePaginator {
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 15);
         $sortBy = $request->input('sort_by', 'created_at');
