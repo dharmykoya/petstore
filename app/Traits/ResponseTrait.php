@@ -76,7 +76,7 @@ trait ResponseTrait {
      *
      * @return JsonResponse
      */
-    public function jsonResponse(string $message, int $status, array $data = null): JsonResponse
+    public function jsonResponse(string $message, int $status, JsonSerializable|null|array|Responsable|string $data = null): JsonResponse
     {
         $is_successful = $this->isStatusCodeSuccessful($status);
 

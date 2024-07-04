@@ -94,6 +94,7 @@ class AuthService {
      * @return array<string, mixed>
      */
     public function resetPassword(array $data): array {
+        /** @var object{email: string, token: string, created_at: string} $reset */
         $reset = DB::table('password_reset_tokens')
             ->where('email', $data['email'])
             ->first();

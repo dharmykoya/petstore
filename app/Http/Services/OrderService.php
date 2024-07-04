@@ -16,6 +16,9 @@ class OrderService {
      */
     public function getOrders(Request $request): LengthAwarePaginator {
         $authUser = auth()->user();
+        if (!$authUser) {
+            abort(401);
+        }
 
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 15);

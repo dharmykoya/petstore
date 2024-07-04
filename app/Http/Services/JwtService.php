@@ -11,6 +11,7 @@ use Lcobucci\JWT\Validation\Constraint\RelatedTo;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
 use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Token\Plain;
 
 class JwtService
 {
@@ -30,8 +31,8 @@ class JwtService
         }
 
         // Load private and public keys
-        $privateKey = InMemory::file($this->privateKeyPath);
-        $publicKey = InMemory::file($this->publicKeyPath);
+        $privateKey = $this->getKey($this->privateKeyPath);
+        $publicKey = $this->getKey($this->publicKeyPath);
 
         // Create the JWT configuration
         $this->config = Configuration::forAsymmetricSigner(
@@ -39,6 +40,13 @@ class JwtService
             $privateKey,
             $publicKey
         );
+    }
+
+    protected function getKey(string $path): InMemory {
+        if (empty($path) || !file_exists($path)) {
+            throw new \InvalidArgumentException("Key path is invalid or does not exist: $path");
+        }
+        return InMemory::file($path);
     }
 
     protected function generateKeys(): void {
@@ -81,6 +89,7 @@ class JwtService
      */
     public function parseToken(string $jwt): array {
         try {
+            /** @var Plain $token */
             $token = $this->config->parser()->parse($jwt);
             return $token->claims()->all();
         } catch (\Exception $exception) {
@@ -90,6 +99,7 @@ class JwtService
 
     public function getUserFromToken(string $jwt): string {
         try {
+            /** @var Plain $token */
             $token = $this->config->parser()->parse($jwt);
             return $token->claims()->get('user');
         } catch (\Exception $exception) {
@@ -100,6 +110,7 @@ class JwtService
     public function isTokenExpired(string $token): bool
     {
         try {
+            /** @var Plain $parsedToken */
             $parsedToken = $this->config->parser()->parse($token);
             // Get the expiration timestamp from the parsed token
             $expTimestamp = $parsedToken->claims()->get('exp');
@@ -125,7 +136,7 @@ class JwtService
         if ($this->isTokenExpired($jwt)) {
             throw new \Exception('Token has expired');
         }
-
+        /** @var Plain $token */
         $token = $this->config->parser()->parse($jwt);
         $validator = new Validator();
         $constraints = [
